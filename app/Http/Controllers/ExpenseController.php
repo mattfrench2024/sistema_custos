@@ -9,45 +9,56 @@ class ExpenseController extends Controller
 {
     public function index()
     {
-        return Expense::with(['category', 'user'])->get();
+        $expenses = Expense::with('user')->orderBy('data', 'desc')->paginate(10);
+        return view('expenses.index', compact('expenses'));
+    }
+
+    public function create()
+    {
+        return view('expenses.create');
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $validated = $request->validate([
             'descricao' => 'required|string|max:255',
             'valor' => 'required|numeric',
             'data' => 'required|date',
-            'categoria_id' => 'required|exists:categories,id',
         ]);
 
-        $data['user_id'] = auth()->id();
+        $validated['user_id'] = auth()->id();
 
-        return Expense::create($data);
+        Expense::create($validated);
+
+        return redirect()->route('expenses.index')->with('success', 'Despesa registrada.');
     }
 
     public function show(Expense $expense)
     {
-        return $expense->load(['category', 'user']);
+        return view('expenses.show', compact('expense'));
+    }
+
+    public function edit(Expense $expense)
+    {
+        return view('expenses.edit', compact('expense'));
     }
 
     public function update(Request $request, Expense $expense)
     {
-        $data = $request->validate([
+        $validated = $request->validate([
             'descricao' => 'required|string|max:255',
             'valor' => 'required|numeric',
             'data' => 'required|date',
-            'categoria_id' => 'required|exists:categories,id'
         ]);
 
-        $expense->update($data);
+        $expense->update($validated);
 
-        return $expense;
+        return redirect()->route('expenses.index')->with('success', 'Despesa atualizada.');
     }
 
     public function destroy(Expense $expense)
     {
         $expense->delete();
-        return response()->json(['message' => 'Despesa removida']);
+        return redirect()->route('expenses.index')->with('success', 'Despesa removida.');
     }
 }

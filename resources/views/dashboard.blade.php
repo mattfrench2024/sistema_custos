@@ -1,10 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="row">
-    <div class="col-md-12">
-        <h2>Dashboard</h2>
-        <p>Bem-vindo ao Sistema de Custos.</p>
-    </div>
+<h2 class="mb-3">Dashboard Geral</h2>
+
+<div class="alert alert-primary">
+    Bem-vindo, {{ auth()->user()->name }}!
 </div>
 @endsection

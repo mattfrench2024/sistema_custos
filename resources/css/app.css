@@ -1,3 +1,109 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ========================================================
+   Global Design Tokens — Cores, Espaçamento, Sombras, etc
+   ======================================================== */
+@layer base {
+    :root {
+        /* Brand */
+        --brand-from: #ff7a18;
+        --brand-to:   #ffb347;
+
+        /* Neutral palette (modo claro) */
+        --bg-primary: #f7f7f8;
+        --bg-card: #ffffff;
+        --bg-glass: rgba(255,255,255,0.65);
+        --text-main: #1f1f1f;
+        --text-secondary: #4a4a4a;
+
+        /* Shadows premium */
+        --shadow-soft: 0 4px 18px rgba(0,0,0,0.06);
+        --shadow-strong: 0 12px 32px rgba(0,0,0,0.12);
+
+        --radius-base: 12px;
+        --radius-large: 16px;
+    }
+
+    /* ===== Dark Mode ===== */
+    .dark {
+        --bg-primary: #0e0e10;
+        --bg-card: #1a1a1c;
+        --bg-glass: rgba(255,255,255,0.08);
+        --text-main: #f1f1f1;
+        --text-secondary: #b3b3b3;
+        --shadow-soft: 0 4px 18px rgba(0,0,0,0.35);
+        --shadow-strong: 0 12px 32px rgba(0,0,0,0.55);
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+    }
+}
+
+/* ========================================================
+   Components UI — cartões, KPIs, gradientes, navegação
+   ======================================================== */
+@layer components {
+
+    /* Brand Gradient (botões, headers, destaque) */
+    .brand-gradient {
+        background: linear-gradient(90deg, var(--brand-from), var(--brand-to));
+        color: white;
+    }
+
+    /* Card padrão */
+    .card {
+        background: var(--bg-card);
+        border-radius: var(--radius-large);
+        box-shadow: var(--shadow-soft);
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-strong);
+    }
+
+    /* KPI elegante */
+    .kpi {
+        background: var(--bg-card);
+        border-radius: var(--radius-base);
+        padding: 20px;
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: 0.2s ease;
+    }
+    .kpi:hover {
+        transform: scale(1.02);
+        box-shadow: var(--shadow-strong);
+    }
+
+    /* Títulos */
+    .title-xl {
+        @apply text-3xl font-bold tracking-tight;
+    }
+    .title-lg {
+        @apply text-xl font-semibold;
+    }
+
+    /* Divider sutil */
+    .divider {
+        height: 1px;
+        background: rgba(0,0,0,0.08);
+    }
+    .dark .divider {
+        background: rgba(255,255,255,0.08);
+    }
+
+    /* Navegação superior */
+    .navbar {
+        backdrop-filter: saturate(180%) blur(20px);
+        background: var(--bg-glass);
+        box-shadow: var(--shadow-soft);
+    }
+}

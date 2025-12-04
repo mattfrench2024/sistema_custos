@@ -1,21 +1,40 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Sistema de Custos') }}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>{{ config('app.name') }} — Dashboard</title>
 
+    {{-- Fonts modernas --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-light">
 
-    @include('layouts.sidebar')
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-inter antialiased">
 
-    <main class="container mt-4">
-        @yield('content')
-    </main>
+    {{-- Background global suave --}}
+    <div class="min-h-screen flex flex-col">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        {{-- Top Navigation --}}
+        @include('partials.nav')
+
+        {{-- Main Content --}}
+        <main class="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full">
+            @yield('content')
+        </main>
+
+        {{-- Footer minimalista --}}
+        <footer class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+            Sistema de Custos • {{ date('Y') }}
+        </footer>
+
+    </div>
+
 </body>
 </html>
