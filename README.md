@@ -1,59 +1,264 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📊 Verreschi Management — Sistema Corporativo de Custos & Operações
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Um sistema moderno, premium e de alta performance para controle financeiro, custos, folha, RH, inventário e operações corporativas.  
+Construído com uma arquitetura profissional, UI impecável, integrações externas e módulos administrativos completos.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# ✨ Visão Geral
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+O **Verreschi Management** é uma plataforma interna corporativa que centraliza os principais pilares de uma operação empresarial:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **💰 Controle de Custos & Despesas**
+- **📦 Inventário & Patrimônio (TI/Admin)**
+- **🧮 Financeiro, Folha & RH**
+- **🔐 Autenticação, Perfis & Sessões por área**
+- **📊 Dashboards premium**
+- **🧾 Auditoria & Logs corporativos**
+- **🔌 Integrações SQL Server, MySQL e Python**
+- **⚙ Rotinas automatizadas de processamento**
 
-## Learning Laravel
+Tudo isso em uma experiência visual profissional, responsiva e altamente intuitiva.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 🎨 UI/UX Premium
 
-## Laravel Sponsors
+O sistema foi desenhado com foco em clareza, velocidade e estética empresarial:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🖼 Tecnologias de UI
+- **TailwindCSS** (design moderno)
+- **Componentização Blade** (botões, cards, KPIs, tabelas)
+- **Layouts responsivos**
+- **Tema claro/escuro**
+- **DataTables Premium**
+- **Glassmorphism + Transições suaves**
 
-### Premium Partners
+### 🔥 Experiência Visual
+- Dashboards com KPIs grandes e legíveis  
+- Gráficos integrados para visão instantânea  
+- Tabelas organizadas, filtros, pesquisa avançada  
+- Layout consistente entre áreas (TI, Financeiro, RH, Admin)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+# 🧱 Arquitetura Técnica
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 🏗 Backend (Laravel 12+)
+- Controllers distribuídos por domínio  
+- Service Layer para cálculos financeiros  
+- Filas/Jobs para processamento assíncrono  
+- Audit logs centralizados  
+- Policies + Gates para cada role  
 
-## Code of Conduct
+### 🗄 Banco de Dados
+**MySQL 8** – Armazena camadas internas do sistema  
+**SQL Server** – Origem para folha, pagamentos e informações externas  
+**Python** – Motor de sincronização e ETL
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+# 🛢 Estrutura do Banco (MySQL)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Tabelas principais do sistema:
 
-## License
+| Tabela | Finalidade |
+|-------|------------|
+| **cost_entries** | Lançamentos de custos |
+| **costs_base** | Base cadastral de custos fixos/variáveis |
+| **expenses** | Despesas gerais |
+| **invoices** | Dados de faturamento |
+| **payrolls** | Folha de pagamento sincronizada do SQL Server |
+| **products / product_prices** | Itens controlados |
+| **categories / category_items** | Estrutura de classificação de custos |
+| **tb_pagamentos_processados** | Importações automáticas |
+| **audit_logs** | Trilha completa de ações |
+| **roles** | Perfis: admin, financeiro, ti, rh |
+| **users** | Usuários do sistema |
+| **sessions** | Sessões seguras |
+| **settings** | Configurações do painel |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Total: **25 tabelas otimizadas e normalizadas**.
+
+---
+
+# 🗂 Estrutura de Pastas – Controllers
+
+O sistema possui uma arquitetura robusta e altamente organizada:
+
+app/Http/Controllers/
+│ AuditDashboardController.php
+│ AuditLogController.php
+│ CategoryController.php
+│ CategoryItemController.php
+│ CostAttachmentController.php
+│ CostBaseController.php
+│ CostEntryController.php
+│ CostNoteController.php
+│ CostsDashboardController.php
+│ DashboardController.php
+│ DepartmentController.php
+│ ExpenseController.php
+│ FinanceiroNotaController.php
+│ FinancialDashboardController.php
+│ InvoiceController.php
+│ NotificationInternalController.php
+│ PagarController.php
+│ PayrollController.php
+│ ProductController.php
+│ ProductPriceController.php
+│ ProfileController.php
+│ ReceberController.php
+│ RecebimentosSyncController.php
+│ RoleController.php
+│ SettingController.php
+└── Auth/
+AuthenticatedSessionController.php
+        ConfirmablePasswordController.php
+        EmailVerificationNotificationController.php
+        EmailVerificationPromptController.php
+        NewPasswordController.php
+        PasswordController.php
+        PasswordResetLinkController.php
+        RegisteredUserController.php
+        VerifyEmailController.php
+
+        
+Cada módulo possui seu próprio controller, mantendo o sistema **separado por contexto**, limpo e escalável.
+
+---
+
+# 🧩 Estrutura de Views (Blade)
+
+resources/views/
+│ dashboard.blade.php
+│ welcome.blade.php
+│
+├── dashboards/
+│ admin.blade.php
+│ auditoria.blade.php
+│ financeiro.blade.php
+│ rh.blade.php
+│ default.blade.php
+│
+├── financeiro/
+│ index.blade.php
+│ edit.blade.php
+│
+├── cost_entries/
+│ index.blade.php
+│ create.blade.php
+│ edit.blade.php
+│
+├── categories/
+│ index.blade.php
+│
+├── category_items/
+│ index.blade.php
+│ create.blade.php
+│ edit.blade.php
+│
+├── rh/
+├── ti/
+└── components/
+
+
+Arquitetura projetada para **componentização, reuso e manutenção fácil**.
+
+---
+
+# 🔌 Integrações Externas
+
+## ✔ SQL Server  
+Consumido para:
+- Folha  
+- Pagamentos  
+- Centros de custo  
+- Indicadores financeiros  
+
+## ✔ MySQL  
+Banco principal do sistema (Laravel).
+
+## ✔ Python  
+Usado para:
+- ETL  
+- Importações automáticas  
+- Sincronização real-time  
+- Limpeza/normalização dos dados  
+
+---
+
+# 🧮 Módulos do Sistema
+
+---
+
+## 💰 Sistema de Custos
+- Cadastro completo de itens de custo  
+- Centro de custo inteligente  
+- Comparativos mensais  
+- KPIs e gráficos  
+- Upload de anexos  
+- Auditoria por operação  
+- Dashboard de custos com filtros avançados  
+
+---
+
+## 🧾 Financeiro, Folha e RH
+- Folha sincronizada do SQL Server  
+- Relatórios por departamento  
+- Indicadores corporativos  
+- Pagamentos (pagar/receber)  
+- Análise de variação  
+- Filtros por período, setor e categoria  
+
+---
+
+## 📦 Inventário & TI
+- Patrimônio por categoria  
+- Movimentações de estoque  
+- Notas internas  
+- Produtos e preços  
+- Relatórios de inventário  
+- Logs de movimentação  
+
+---
+
+## 👑 Administração & Auditoria
+- Logs completos por ação  
+- Trilhas de auditoria em tempo real  
+- Gerenciamento de roles  
+- Gerenciamento de usuários  
+- Dashboard para administradores  
+
+---
+
+# 📡 Arquitetura de Integração
+
+        SQL Server
+            │
+     (Folha / Financeiro)
+            │  Python ETL
+            ▼
+      MySQL (Laravel)
+            │
+     Verreschi Management
+
+---
+
+# 🚀 Roadmap
+
+- Multiempresa completo  
+- Billing interno (plano gratuito, PRO e corporativo)  
+- API pública REST  
+- Módulo de relatórios avançados  
+- Exportador universal (Excel/PDF)  
+- Logs distribuídos via Kafka (opcional)  
+
+---
+
+# 🏆 Conclusão
+
+Este é um sistema corporativo robusto, modular, seguro e escalável — pronto para uso em produção e com estrutura suficiente para se tornar um **SaaS empresarial completo**.
+
+A UI premium combinada com a arquitetura limpa e as integrações externas fazem do **Verreschi Management** um produto de nível profissional, com grande valor agregado técnico e comercial.
+
