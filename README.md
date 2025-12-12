@@ -355,6 +355,3 @@ A combinação de:
 coloca o projeto em um **nível profissional**, com enorme valor técnico e comercial.
 
 ---
-
-# 🗂 **5. Estrutura de Controllers**
-
