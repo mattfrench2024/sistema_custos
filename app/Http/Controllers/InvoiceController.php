@@ -2,54 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Invoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
     public function index()
     {
-        return Invoice::with(['category', 'user'])->get();
-    }
+        $notas = DB::table('costs_base')
+            ->select(
+                'id',
+                'Categoria',
+                'Ano',
+                'cnpj',
+                'file_jan',
+                'file_fev',
+                'file_mar',
+                'file_abr',
+                'file_mai',
+                'file_jun',
+                'file_jul',
+                'file_ago',
+                'file_set',
+                'file_out',
+                'file_nov',
+                'file_dez'
+            )
+            ->where(function($query) {
+                $query->whereNotNull('file_jan')
+                      ->orWhereNotNull('file_fev')
+                      ->orWhereNotNull('file_mar')
+                      ->orWhereNotNull('file_abr')
+                      ->orWhereNotNull('file_mai')
+                      ->orWhereNotNull('file_jun')
+                      ->orWhereNotNull('file_jul')
+                      ->orWhereNotNull('file_ago')
+                      ->orWhereNotNull('file_set')
+                      ->orWhereNotNull('file_out')
+                      ->orWhereNotNull('file_nov')
+                      ->orWhereNotNull('file_dez');
+            })
+            ->orderBy('Ano')
+            ->orderBy('Categoria')
+            ->get();
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'numero' => 'required|string|max:255',
-            'fornecedor' => 'required|string|max:255',
-            'valor' => 'required|numeric',
-            'data' => 'required|date',
-            'categoria_id' => 'required|exists:categories,id',
-        ]);
-
-        $data['user_id'] = auth()->id();
-
-        return Invoice::create($data);
-    }
-
-    public function show(Invoice $invoice)
-    {
-        return $invoice->load(['category', 'user']);
-    }
-
-    public function update(Request $request, Invoice $invoice)
-    {
-        $data = $request->validate([
-            'numero' => 'required|string|max:255',
-            'fornecedor' => 'required|string|max:255',
-            'valor' => 'required|numeric',
-            'data' => 'required|date',
-            'categoria_id' => 'required|exists:categories,id',
-        ]);
-
-        $invoice->update($data);
-
-        return $invoice;
-    }
-
-    public function destroy(Invoice $invoice)
-    {
-        $invoice->delete();
-        return response()->json(['message' => 'Nota fiscal removida']);
+        return view('invoices.audit', compact('notas'));
     }
 }

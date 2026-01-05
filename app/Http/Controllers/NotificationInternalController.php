@@ -23,4 +23,19 @@ class NotificationInternalController extends Controller
 
         return NotificationInternal::create($data);
     }
+    public function destroy($id)
+    {
+        $notification = NotificationInternal::findOrFail($id);
+        $notification->delete();
+
+        return response()->json(['message' => 'Notification deleted successfully.']);
+    }
+    public function markAsRead($id)
+    {
+        $notification = NotificationInternal::findOrFail($id);
+        $notification->read_at = now();
+        $notification->save();
+
+        return response()->json(['message' => 'Notification marked as read.']);
+    }
 }

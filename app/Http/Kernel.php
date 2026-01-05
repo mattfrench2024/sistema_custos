@@ -18,6 +18,11 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
     ];
 
+
+    protected $commands = [
+    \App\Console\Commands\OmieImportContasReceber::class,
+];
+
     /**
      * 📌 Grupos de middleware
      */

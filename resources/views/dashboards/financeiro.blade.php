@@ -104,7 +104,7 @@
 @php
   // Nota: variáveis Blade originais ($costs, $totals, etc.) são usadas sem alteração.
 @endphp
-
+<!--
 <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
   {{-- HEADER --}}
@@ -125,7 +125,6 @@
   </div>
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<!--
   {{-- FILTERS / CONTROLS --}}
   <div class="filter-bar flex flex-wrap items-center gap-3">
     <div class="flex items-center gap-2">
@@ -154,7 +153,7 @@
       <button id="exportCsv" class="px-3 py-2 rounded-md bg-gradient-to-r from-[#F9821A] to-[#FC940D] text-white text-sm">Exportar CSV</button>
     </div>
   </div>
--->
+
   {{-- TOP KPIs --}}
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
     {{-- CUSTOS TOTAIS --}}
@@ -239,8 +238,8 @@
       </div>
     </div>
   </div>
-<!--
   {{-- GRÁFICOS --}}
+  <!--
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="lg:col-span-2 p-6 rounded-2xl card-glass shadow-sm">
       <div class="flex items-center justify-between">
@@ -274,113 +273,69 @@
   </div>
 
   {{-- RANKING + TABELA RESUMO --}}
-  <div x-data="{ showAll: false }" class="p-6 rounded-2xl card-glass shadow-sm">
+            -->
 
-    {{-- Cabeçalho --}}
-    <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Ranking de Custos</h3>
-
-        <button 
-            @click="showAll = !showAll"
-            class="text-sm px-3 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-        >
-            <span x-show="!showAll">Mostrar todos</span>
-            <span x-show="showAll">Mostrar menos</span>
-        </button>
-    </div>
-
-    {{-- Lista --}}
-    <ul class="mt-6 space-y-3">
-
-        @foreach($costs as $index => $c)
-            <li 
-                x-show="showAll || {{ $index }} < 5"
-                x-transition
-                class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-            >
-                <div class="flex items-center gap-3">
-
-                    {{-- Avatar / Inicial --}}
-                    <div class="w-9 h-9 rounded-md flex items-center justify-center 
-                        bg-gradient-to-br from-[#FFE8D0] to-[#FFF4E6] 
-                        text-sm font-semibold text-[#7A3A00] shadow-sm">
-                        {{ Str::limit($c->Categoria, 2, '') }}
-                    </div>
-
-                    {{-- Categoria --}}
-                    <div>
-                        <div class="text-sm font-medium text-gray-800 dark:text-gray-100">
-                            {{ $c->Categoria }}
-                        </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">Categoria</div>
-                    </div>
-                </div>
-
-                {{-- Valores --}}
-                <div class="flex items-center gap-4">
-                    <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        R$ {{ number_format($c->TotalPago, 2, ',', '.') }}
-                    </div>
-
-                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ number_format($c->Percentual, 2) }}%
-                    </div>
-                </div>
-            </li>
-        @endforeach
-
-    </ul>
-</div>
-             -->
-
-<!--<div x-data="costsDetail()" class="min-h-screen font-sans text-gray-900 antialiased bg-[#F3F4F6] dark:bg-[#0f1117] selection:bg-orange-100 selection:text-orange-600">-->
     
     <style>
         :root {
             --brand-from: #F9821A;
             --brand-to: #FC940D;
         }
-        /* Utilitários específicos para suavidade Apple-like */
         .glass-header {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
         }
         .dark .glass-header {
             background: rgba(31, 41, 55, 0.85);
         }
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 9999px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #374151; }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+
+        /* Modal styles */
+        .modal-overlay {
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(6px);
         }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+        .modal-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            width: 100%;
+            max-width: 640px;
+            box-shadow: 0 16px 50px rgba(2,6,23,0.4);
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #E5E7EB;
-            border-radius: 9999px;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #374151;
-        }
-        .tabular-nums {
-            font-variant-numeric: tabular-nums;
+        .status-chip {
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:6px 10px;
+            border-radius:999px;
+            font-weight:700;
+            font-size:13px;
         }
     </style>
+    <div class="max-w-7xl mx-auto px-6 py-8">
 
+    <!-- TÍTULO / HEADER -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+            Fluxos – Dashboard Financeiro
+        </h1>
+        <p class="mt-1 text-gray-500 dark:text-gray-400">
+            Visualize de forma clara os lançamentos, pagamentos e tendências financeiras.
+        </p>
+    </div>
+<div x-data="costsDetail()" x-init="init()" class="min-h-screen font-sans text-gray-900 antialiased bg-[#F3F4F6] dark:bg-[#0f1117] selection:bg-orange-100 selection:text-orange-600">
 
+    <table class="w-full border-separate border-spacing-0 rounded-xl overflow-hidden shadow-sm
+           bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm ring-1 ring-gray-200/60 dark:ring-gray-700/50">
 
-                <!--<table class="w-full border-separate border-spacing-0 rounded-xl overflow-hidden shadow-sm
-               bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm ring-1 ring-gray-200/60 dark:ring-gray-700/50">
-
-    {{-- HEADER --}}
-    <thead>
+        <thead>
         <tr class="bg-gray-50/70 dark:bg-gray-800/70 border-b border-gray-200/60 dark:border-gray-700/60">
-
-            {{-- Header Cell Component --}}
             @php
                 function thSortable($label, $column) {
                     return "
@@ -410,242 +365,276 @@
 
             <th class="px-6 py-4"></th>
         </tr>
-    </thead>
+        </thead>
 
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-700/60">
 
-    {{-- BODY --}}
-    <tbody class="divide-y divide-gray-100 dark:divide-gray-700/60">
+@foreach($costs as $cost)
 
-        @foreach($costs as $cost)
+@php
+    $difValor   = $cost->ValorAtual - $cost->MediaPagos;
+$difPercent = $cost->MediaPagos > 0 ? ($difValor / $cost->MediaPagos) * 100 : 0;
 
-        <tr class="group transition duration-200 hover:bg-gray-50/70 dark:hover:bg-gray-800/40">
+@endphp
 
-            {{-- ID --}}
-            <td class="px-6 py-4 text-xs font-mono text-gray-400 dark:text-gray-600 group-hover:text-gray-500">
-                #{{ str_pad($cost->id, 3, '0', STR_PAD_LEFT) }}
-            </td>
+<tr class="group transition duration-200 hover:bg-gray-50/70 dark:hover:bg-gray-800/40">
 
-            {{-- Categoria --}}
-            <td class="px-6 py-4">
-                <div class="flex items-center gap-4">
+    <td class="px-6 py-4 text-xs font-mono text-gray-400 dark:text-gray-600 group-hover:text-gray-500">
+        #{{ str_pad($cost->id, 3, '0', STR_PAD_LEFT) }}
+    </td>
 
-                    {{-- Ícone circular --}}
-                    <div class="relative w-9 h-9 rounded-xl flex items-center justify-center
-                                bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-600
-                                text-xs font-bold text-gray-700 dark:text-gray-100 shadow-inner 
-                                group-hover:from-[--brand-from] group-hover:to-[--brand-to]
-                                group-hover:text-white transition-all duration-500">
-                        {{ substr($cost->Categoria, 0, 1) }}
-                    </div>
+    <td class="px-6 py-4">
+        <div class="flex items-center gap-4">
+            <div class="relative w-9 h-9 rounded-xl flex items-center justify-center
+                        bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-600
+                        text-xs font-bold text-gray-700 dark:text-gray-100 shadow-inner 
+                        group-hover:from-[--brand-from] group-hover:to-[--brand-to]
+                        group-hover:text-white transition-all duration-500">
+                {{ substr($cost->Categoria, 0, 1) }}
+            </div>
 
-                    {{-- Texto categoria --}}
-                    <div class="flex flex-col">
-                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 
-                                     group-hover:text-[--brand-from]">
-                            {{ $cost->Categoria }}
-                        </span>
-                    </div>
-                </div>
-            </td>
-
-            {{-- Percentual + Progress bar --}}
-            <td class="px-6 py-4">
-                <div class="max-w-[200px]">
-                    <div class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
-                        {{ number_format($cost->Percentual, 2) }}%
-                    </div>
-
-                    <div class="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full bg-gradient-to-r from-[--brand-from] to-[--brand-to]
-                                    transition-all duration-500 shadow-[0_0_12px_rgba(249,130,26,0.35)]"
-                             style="width: {{ $cost->Percentual }}%">
-                        </div>
-                    </div>
-                </div>
-            </td>
-
-            {{-- Mês Atual --}}
-            <td class="px-6 py-4 text-right">
-                <span class="text-sm font-medium tabular-nums
-                             {{ $cost->ValorAtual > 0 ? 'text-gray-900 dark:text-gray-200' : 'text-gray-400' }}">
-                    R$ {{ number_format($cost->ValorAtual, 2, ',', '.') }}
-                </span>
-            </td>
-
-            {{-- Total Ano --}}
-            <td class="px-6 py-4 text-right">
-                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200 tabular-nums">
-                    R$ {{ number_format($cost->TotalPago, 2, ',', '.') }}
-                </span>
-            </td>
-
-            {{-- Média --}}
-            <td class="px-6 py-4 text-right leading-tight">
-                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200 tabular-nums">
-                    R$ {{ number_format($cost->Media, 2, ',', '.') }}
-                    <span class="text-[10px] text-gray-400">/12 meses</span>
+            <div class="flex flex-col">
+                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 
+                             group-hover:text-[--brand-from]">
+                    {{ $cost->Categoria }}
                 </span>
 
-                <br>
-
-                <span class="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
-                    R$ {{ number_format($cost->MediaPagos, 2, ',', '.') }}
-                    <span class="text-[10px] text-gray-400">/pagos</span>
+                {{-- Comparativo FIXO / MENSAL --}}
+                <span class="text-xs font-semibold
+                    @if($difValor <= 0) text-green-600 dark:text-green-400 
+                    @else text-red-600 dark:text-red-400 @endif">
+                    {{ number_format($difPercent, 1) }}%
+                    @if($difValor <= 0)
+                        abaixo da média
+                    @else
+                        acima da média
+                    @endif
                 </span>
-            </td>
+            </div>
+        </div>
+    </td>
 
-            {{-- Botão detalhes --}}
-            <td class="px-6 py-4 text-center">
-                <button 
-                    @click="openDetail({{ $cost->id }})"
-                    class="p-2 rounded-lg text-gray-400 transition
-                           hover:bg-orange-50 dark:hover:bg-orange-900/20
-                           hover:text-[--brand-from]
-                           focus:ring-2 focus:ring-[--brand-from] focus:ring-offset-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" 
-                         class="h-5 w-5 transition-transform group-hover:scale-110"
-                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7
-                                 -1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                </button>
-            </td>
+    <td class="px-6 py-4">
+        <div class="max-w-[200px]">
+            <div class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                {{ number_format($cost->Percentual, 2) }}%
+            </div>
 
-        </tr>
+            <div class="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-[--brand-from] to-[--brand-to]"
+                     style="width: {{ $cost->Percentual }}%"></div>
+            </div>
+        </div>
+    </td>
 
-        @endforeach
-    </tbody>
-</table>
+    <td class="px-6 py-4 text-right">
+        <span class="text-sm font-medium tabular-nums">
+            R$ {{ number_format($cost->ValorAtual, 2, ',', '.') }}
+        </span>
+    </td>
 
-                <script>
-/*
- Alpine-based DOM sorter que:
- - mantém as linhas Blade existentes
- - aceita chamadas sortBy('id'|'Categoria'|'Percentual'|'ValorAtual'|'TotalPago'|'Media')
- - alterna asc/desc
- - reanexa as <tr> ordenadas no <tbody>
- - preserva event listeners dos botões existentes (openDetail, etc.)
-*/
-function tableSort() {
-  return {
-    // estado visível pelas suas x-show
-    sort: { column: null, direction: 'asc' },
+    <td class="px-6 py-4 text-right">
+        <span class="text-sm font-semibold tabular-nums">
+            R$ {{ number_format($cost->TotalPago, 2, ',', '.') }}
+        </span>
+    </td>
 
-    // elementos cache
-    tbodyEl: null,
-    rows: [], // array de { el: trElement, cellsText: [...], originalIndex }
+    <td class="px-6 py-4 text-right leading-tight">
+        <span class="text-sm font-semibold tabular-nums">
+            R$ {{ number_format($cost->Media, 2, ',', '.') }}
+            <span class="text-[10px] text-gray-400">/12 meses</span>
+        </span>
+        <br>
+        <span class="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
+            R$ {{ number_format($cost->MediaPagos, 2, ',', '.') }}
+            <span class="text-[10px] text-gray-400">/pagos</span>
+        </span>
+    </td>
 
-    // mapeamento de coluna chave -> index do <td> (0-based)
-    // ajuste se a ordem das colunas mudar
-    colIndexMap: {
-      id: 0,
-      Categoria: 1,
-      Percentual: 2,
-      ValorAtual: 3,
-      TotalPago: 4,
-      Media: 5
-    },
+    <td class="px-6 py-4 text-center">
+        <button 
+            @click="openDetail({ 
+                    id: {{ $cost->id }},
+                    categoria: '{{ $cost->Categoria }}',
+                    valorAtual: {{ $cost->ValorAtual }},
+                    media: {{ $cost->Media }},
+                    difValor: {{ $difValor }},
+                    difPercent: {{ $difPercent }}
+            })"
+            class="p-2 rounded-lg text-gray-400 transition hover:bg-orange-50 dark:hover:bg-orange-900/20">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+        </button>
+    </td>
 
-    init() {
-      // find tbody inside this component
-      this.tbodyEl = this.$el.querySelector('tbody');
-      if (!this.tbodyEl) return;
+</tr>
 
-      // read rows once
-      const trEls = Array.from(this.tbodyEl.querySelectorAll('tr'));
-      this.rows = trEls.map((tr, idx) => {
-        // collect normalized text values for each cell
-        const cells = Array.from(tr.querySelectorAll('td')).map(td => td.innerText.trim());
-        return { el: tr, cellsText: cells, originalIndex: idx };
-      });
-    },
+@endforeach
+<script>
+function costsDetail() {
+    return {
+        modalOpen: false,
+        detail: {},
 
-    // utility to parse numeric strings (R$ 1.234,56 -> 1234.56) or percent (12.34%)
-    _normalizeValue(text) {
-      if (text === null || text === undefined) return '';
-      text = String(text).trim();
+        openDetail(data) {
+            this.detail = data;
+            this.modalOpen = true;
+        }
+    };
+}
 
-      // percent like "12.34%" or "12,34 %"
-      if (text.includes('%')) {
-        const n = text.replace('%','').replace(/\s/g,'').replace(',', '.').replace(/[^\d.-]/g,'');
-        return parseFloat(n) || 0;
-      }
+document.addEventListener("alpine:init", () => {
+    Alpine.data("costsDetail", costsDetail);
+});
+</script>
 
-      // currency like "R$ 1.234,56" -> 1234.56
-      if (/R\$/.test(text) || /[0-9]\./.test(text) || text.includes(',')) {
-        // remove currency symbol and thousands separator, convert comma decimals to dot
-        let n = text.replace(/R\$\s?/, '').replace(/\./g, '').replace(/,/g, '.').replace(/[^\d.-]/g,'');
-        return parseFloat(n) || 0;
-      }
+</tbody>
 
-      // fallback numeric
-      const maybeNum = text.replace(/\./g,'').replace(/,/g,'.').replace(/[^\d.-]/g,'');
-      if (maybeNum !== '' && !isNaN(maybeNum)) return parseFloat(maybeNum);
+    </table>
 
-      // string
-      return text.toLowerCase();
-    },
+    <!-- 
+<div 
+    x-show="modalOpen"
+    class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6"
+    x-transition
+>
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-xl w-full max-w-md"
+         @click.away="modalOpen=false">
 
-    // main sort function called pelo @click nos th
-    sortBy(columnKey) {
-      // toggle direction or set new column
-      if (this.sort.column === columnKey) {
-        this.sort.direction = this.sort.direction === 'asc' ? 'desc' : 'asc';
-      } else {
-        this.sort.column = columnKey;
-        this.sort.direction = 'asc';
-      }
+        <h2 class="text-lg font-bold mb-3 text-gray-900 dark:text-gray-100">
+            Detalhes — <span x-text="detail.categoria"></span>
+        </h2>
 
-      // find cell index for this column
-      const idx = this.colIndexMap[columnKey];
-      if (idx === undefined) return;
+        <p class="text-sm text-gray-600 dark:text-gray-300">
+            Valor atual:
+            <strong>R$ <span x-text="detail.valorAtual.toFixed(2)"></span></strong>
+        </p>
 
-      // sort rows array
-      const dir = this.sort.direction === 'asc' ? 1 : -1;
+        <p class="text-sm text-gray-600 dark:text-gray-300">
+            Média mensal:
+            <strong>R$ <span x-text="detail.media.toFixed(2)"></span></strong>
+        </p>
 
-      this.rows.sort((a, b) => {
-        const aRaw = a.cellsText[idx] ?? '';
-        const bRaw = b.cellsText[idx] ?? '';
+        <p class="mt-3 text-sm"
+           :class="detail.difValor <= 0 ? 'text-green-600' : 'text-red-600'">
+            <span x-text="detail.difPercent.toFixed(1)"></span>% —
+            <span x-text="detail.difValor <= 0 ? 'Abaixo da média' : 'Acima da média'"></span>
+        </p>
 
-        const aVal = this._normalizeValue(aRaw);
-        const bVal = this._normalizeValue(bRaw);
+        <button 
+            @click="modalOpen=false"
+            class="mt-6 w-full py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">
+            Fechar
+        </button>
+    </div>
+</div>
 
-        // both numbers?
-        if (typeof aVal === 'number' && typeof bVal === 'number') {
-          if (aVal === bVal) return a.originalIndex - b.originalIndex; // stable
-          return aVal > bVal ? dir : -dir;
+    </div>
+-->
+
+<script>
+
+
+        closeModal() {
+            this.showModal = false;
+        },
+
+        // INIT
+        init() {
+            this.tbodyEl = this.$el.querySelector("tbody");
+            if (!this.tbodyEl) return;
+
+            const trEls = Array.from(this.tbodyEl.querySelectorAll("tr"));
+            this.rows = trEls.map((tr, index) => ({
+                el: tr,
+                cellsText: Array.from(tr.querySelectorAll("td"))
+                    .map(td => td.innerText.trim()),
+                originalIndex: index
+            }));
+        },
+
+        _normalizeValue(text) {
+            if (!text) return "";
+
+            text = text.trim();
+
+            if (text.includes("%")) {
+                const n = text
+                    .replace('%', '')
+                    .replace(/\s/g, '')
+                    .replace(',', '.')
+                    .replace(/[^\d.-]/g, '');
+                return parseFloat(n) || 0;
+            }
+
+            if (text.includes("R$")) {
+                const n = text
+                    .replace(/R\$\s?/, '')
+                    .replace(/\./g, '')
+                    .replace(/,/g, '.')
+                    .replace(/[^\d.-]/g, '');
+                return parseFloat(n) || 0;
+            }
+
+            const maybe = text
+                .replace(/\./g, '')
+                .replace(/,/g, '.')
+                .replace(/[^\d.-]/g, '');
+
+            if (!isNaN(maybe) && maybe !== '') return parseFloat(maybe);
+
+            return text.toLowerCase();
+        },
+
+        // SORT FIXED — preserves Alpine
+        sortBy(columnKey) {
+            const idx = this.colIndexMap[columnKey];
+            if (idx === undefined) return;
+
+            if (this.sort.column === columnKey) {
+                this.sort.direction = this.sort.direction === "asc" ? "desc" : "asc";
+            } else {
+                this.sort.column = columnKey;
+                this.sort.direction = "asc";
+            }
+
+            const dir = this.sort.direction === "asc" ? 1 : -1;
+
+            this.rows.sort((a, b) => {
+                const aVal = this._normalizeValue(a.cellsText[idx]);
+                const bVal = this._normalizeValue(b.cellsText[idx]);
+
+                if (aVal === bVal) return a.originalIndex - b.originalIndex;
+
+                return aVal > bVal ? dir : -dir;
+            });
+
+            // Preserve Alpine.js + event listeners
+            this.tbodyEl.replaceChildren(...this.rows.map(r => r.el));
+
+            // Refresh cached text
+            this.rows.forEach(r => {
+                r.cellsText = Array.from(r.el.querySelectorAll("td"))
+                    .map(td => td.innerText.trim());
+            });
         }
 
-        // compare strings
-        if (aVal === bVal) return a.originalIndex - b.originalIndex;
-        return aVal > bVal ? dir : -dir;
-      });
-
-      // re-attach sorted rows into tbody
-      // use DocumentFragment for performance
-      const frag = document.createDocumentFragment();
-      this.rows.forEach(r => frag.appendChild(r.el));
-      this.tbodyEl.innerHTML = ''; // clear
-      this.tbodyEl.appendChild(frag);
-
-      // accessibility: focus first row cell after sort (optional)
-      const firstRow = this.tbodyEl.querySelector('tr');
-      if (firstRow) {
-        const firstCell = firstRow.querySelector('td');
-        if (firstCell) firstCell.setAttribute('tabindex','-1');
-      }
-    }
-  }
+    };
 }
 </script>
+
+
 </div>
+
+
+<!--
+
             </div>
         </div>
     </div>
-
+--
     {{-- MODAL REFINADO --}}
     <div 
         x-show="showModal"
@@ -753,7 +742,7 @@ function tableSort() {
                                     </tr>
                                 </template>
                             </tbody>
-                        </table>-->
+                        </table>
                     </div>
 
     {{-- Script Alpine (Lógica Original Mantida) --}}
@@ -793,6 +782,16 @@ function tableSort() {
 
 
     {{-- Modal refinado --}}
+
+    {{-- Botão que abre o modal --}}
+    
+
+    {{-- Modal --}}
+    {{-- Botões de abrir modal dentro da tabela Blade --}}
+
+
+{{-- Modal único no final do HTML --}}
+<div x-data="costsDetail()" class="relative">
     <div 
         x-show="showModal"
         x-transition:enter="transition ease-out duration-300"
@@ -808,196 +807,89 @@ function tableSort() {
             {{-- Cabeçalho --}}
             <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-                    Detalhes - <span x-text="detail.categoria"></span>
+                    Detalhes - <span x-text="detail.categoria || '-'"></span>
                 </h3>
-                <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                <button @click="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
+                    ✕
                 </button>
             </div>
 
             {{-- Conteúdo --}}
             <div class="px-6 py-4 max-h-[400px] overflow-y-auto space-y-4">
-                {{-- Informações gerais --}}
                 <div class="grid grid-cols-2 gap-4 text-sm text-gray-700 dark:text-gray-300">
-                    <div><span class="font-semibold">ID:</span> <span x-text="detail.id"></span></div>
-                    <div><span class="font-semibold">Ajustes:</span> R$ <span x-text="detail.ajustes.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits:2})"></span></div>
-                    <div class="col-span-2"><span class="font-semibold">Custo Médio:</span> R$ <span x-text="detail.average.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits:2})"></span></div>
+                    <div><span class="font-semibold">ID:</span> <span x-text="detail.id || '-'"></span></div>
+                    <div><span class="font-semibold">Ajustes:</span> R$ <span x-text="formatCurrency(detail.ajustes)"></span></div>
+                    <div class="col-span-2"><span class="font-semibold">Custo Médio:</span> R$ <span x-text="formatCurrency(detail.average)"></span></div>
                 </div>
 
-                {{-- Tabela de meses --}}
-                <div class="overflow-x-auto">
-                    <div class="p-6 mt-6 rounded-2xl card-glass shadow-lg backdrop-blur-xl border border-white/20 
-            dark:border-white/5 bg-white/60 dark:bg-black/20 transition-all">
+                <div class="overflow-x-auto mt-4">
+                    <table class="w-full text-sm rounded-xl overflow-hidden border border-gray-200/60 dark:border-white/10 shadow-sm">
+                        <thead class="bg-gray-50/80 dark:bg-gray-800/50 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+                            <tr>
+                                <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">Mês</th>
+                                <th class="p-3 text-right font-semibold text-gray-700 dark:text-gray-200">Valor (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(value, month) in detail.months || {}" :key="month">
+                                <tr class="border-b border-gray-100 dark:border-gray-800">
+                                    <td class="p-3 font-medium text-gray-800 dark:text-gray-100" x-text="month"></td>
+                                    <td class="p-3 text-right font-semibold text-gray-700 dark:text-gray-200" x-text="formatCurrency(value)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
 
-    <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 tracking-tight">
-            Histórico Mensal da Categoria
-        </h3>
-
-        {{-- Botão Stripe-like --}}
-        <button 
-            @click="openDetail(detail.id)" 
-            class="px-4 py-2 rounded-xl font-medium text-white text-sm
-                   bg-gradient-to-r from-[var(--brand-from)] to-[var(--brand-to)]
-                   shadow-[0_4px_12px_rgba(0,0,0,0.15)]
-                   hover:shadow-[0_6px_16px_rgba(0,0,0,0.22)]
-                   transition-all active:scale-[0.98]">
-            Ver Detalhes
-        </button>
-    </div>
-
-    {{-- Empresa (ID/CNPJ) --}}
-    <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-        Empresa / CNPJ: 
-        <span class="font-semibold text-gray-700 dark:text-gray-200">
-            {{ $c->id }}
-        </span>
-    </div>
-
-    <div class="rounded-xl overflow-hidden border border-gray-200/60 dark:border-white/10 shadow-sm">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-50/80 dark:bg-gray-800/50 backdrop-blur-lg border-b 
-                          border-gray-200 dark:border-gray-700">
-                <tr>
-                    <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">Mês</th>
-                    <th class="p-3 text-right font-semibold text-gray-700 dark:text-gray-200">Valor (R$)</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <template x-for="(value, month) in detail.months" :key="month">
-                    <tr class="border-b border-gray-100 dark:border-gray-800 
-                               hover:bg-white/60 hover:shadow-sm dark:hover:bg-white/10 
-                               transition-all cursor-pointer group">
-                        <td class="p-3 font-medium text-gray-800 dark:text-gray-100 group-hover:translate-x-1 transition-all"
-                            x-text="month"></td>
-
-                        <td class="p-3 text-right font-semibold text-gray-700 dark:text-gray-200 group-hover:translate-x-1 transition-all"
-                            x-text="value.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})">
-                        </td>
-                    </tr>
-                </template>
-            </tbody>
-        </table>
-    </div>
-
-    {{-- Média dos meses pagos --}}
-    <div class="mt-4 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white
-                dark:from-white/10 dark:to-white/5 border border-gray-200/60 dark:border-white/10
-                shadow-inner">
-
-        <p class="text-sm text-gray-600 dark:text-gray-400">Média dos meses pagos:</p>
-        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mt-1"
-            x-text="'R$ ' + detail.average.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})">
-        </h4>
-    </div>
-
-    {{-- Botão fechar --}}
-    <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <button 
-            @click="showModal = false"
-            class="w-full px-4 py-2 rounded-xl font-semibold
-                   bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100
-                   hover:bg-gray-300 dark:hover:bg-gray-600
-                   shadow-md hover:shadow-lg transition-all active:scale-[0.98]">
-            Fechar
-        </button>
-    </div>
-</div>
-
+                <div class="mt-4 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-white/10 dark:to-white/5 border border-gray-200/60 dark:border-white/10 shadow-inner">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Média dos meses pagos:</p>
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mt-1" x-text="'R$ ' + formatCurrency(detail.average)"></h4>
                 </div>
             </div>
 
-            {{-- Botão fechar --}}
             <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-                <button @click="showModal = false" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition shadow-md hover:shadow-lg">
+                <button @click="closeModal()" class="w-full px-4 py-2 rounded-xl font-semibold bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition shadow-md hover:shadow-lg">
                     Fechar
                 </button>
             </div>
         </div>
     </div>
 
-    {{-- Alpine.js --}}
     <script>
         function costsDetail() {
             return {
                 showModal: false,
                 detail: {},
                 openDetail(id) {
+                    if (!id) return;
                     fetch(`/costs/${id}`)
                         .then(res => res.json())
                         .then(data => {
                             this.detail = data;
                             this.showModal = true;
                         })
-                        .catch(err => {
-                            console.error('Erro ao carregar detalhes:', err);
-                        });
+                        .catch(err => console.error('Erro ao carregar detalhes:', err));
+                },
+                closeModal() {
+                    this.showModal = false;
+                    this.detail = {};
+                },
+                formatCurrency(value) {
+                    if (typeof value !== 'number') return '0,00';
+                    return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 }
             }
         }
     </script>
+</div>
 
 </div>
 
 
+</div>
+-->
 
-    <!-- TABLE WRAPPER -->
-    <div x-data="costsTable()" class="max-w-7xl mx-auto px-6 py-8">
-
-    <!-- HEADER -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-
-        <!-- TITLE -->
-        <div>
-            <h1 class="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                Custos Mensais
-            </h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                Visão geral de fornecedores, gastos e tendências
-            </p>
-        </div>
-
-        <!-- FILTERS -->
-        <div class="flex items-center gap-3 w-full md:w-auto">
-
-            <!-- SEARCH -->
-            <div class="relative w-full md:w-56">
-                <input 
-                    x-model="search"
-                    type="text"
-                    placeholder="Buscar categoria..."
-                    class="w-full px-3 py-2 pl-9 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-sm focus:ring-2 focus:ring-primary/70 focus:border-primary/70 outline-none transition"
-                >
-                <svg class="absolute left-2 top-2.5 w-4 h-4 text-gray-400 dark:text-gray-500" fill="none"
-                     stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
-                </svg>
-            </div>
-
-            <!-- FILTER EMPRESA -->
-            <select 
-                x-model="filterEmpresa"
-                class="px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border focus:ring-2 focus:ring-primary/70 text-sm w-full md:w-44 transition"
-            >
-                <option value="">Empresa (CNPJ)</option>
-
-                @foreach($empresas as $e)
-                    <option value="{{ $e }}">{{ $e }}</option>
-                @endforeach
-            </select>
-
-        </div>
-    </div>
-
-
-
-
-    <!-- TABLE WRAPPER -->
-    <style>
+<style>
 :root{
   --brand-from: #ff7a00;
   --brand-to: #ff9a00;
@@ -1063,28 +955,10 @@ function tableSort() {
 
 /* ---------- STICKY COLUMNS ---------- */
 
-td.sticky-cell{
-  position: sticky;
-  left: 0;
-
-  backdrop-filter: blur(10px);
-  background: rgba(255,255,255,0.90);
-
-  border-right: 1px solid rgba(255,120,20,0.08);
-  font-weight: 700;
-  color: var(--text);
+td.sticky-cell, td.sticky-cell-2 {
+   z-index: 5;
 }
 
-td.sticky-cell-2{
-  position: sticky;
-  left: 190px;
-
-  backdrop-filter: blur(10px);
-  background: rgba(255,255,255,0.90);
-
-  border-right: 1px solid rgba(255,120,20,0.06);
-  color: var(--muted);
-}
 
 /* value highlighting */
 .table-premium td.total{
@@ -1205,92 +1079,172 @@ td.sticky-cell-2{
     background: #ff9a3b;     /* hover mais claro */
 }
 
+.table-premium td:not(.sticky):not(.sticky-cell):not(.sticky-cell-2) {
+    position: relative;
+    z-index: 20;
+}
 
 
 </style>
 
-<div x-data="costsDetail()" class="relative">
 
-    <!-- TABLE WRAPPER -->
-    <div class="table-glass overflow-x-auto">
-        <table class="table-premium">
+   <!-- <div x-data="costsTable()" class="max-w-7xl mx-auto px-6 py-8">
 
-            <!-- HEADER -->
-            <thead>
-                <tr>
-                    <th class="sticky left-0 z-20 px-4 py-4 bg-inherit">Categoria</th>
-                    <th class="sticky left-48 z-20 px-4 py-4 bg-inherit">Empresa</th>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
 
-                    @foreach(['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'] as $m)
-                        <th class="px-4 py-4 text-right">{{ strtoupper($m) }}</th>
-                    @endforeach
+        <div>
+            <h1 class="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">
+                Custos Mensais
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Visão geral de fornecedores, gastos e tendências
+            </p>
+        </div>
 
-                    <th class="px-4 py-4 text-right">Total</th>
-                    <th class="px-4 py-4 text-right">Média</th>
-                </tr>
-            </thead>
+        <div class="flex items-center gap-3 w-full md:w-auto">
 
-            <tbody>
-                @foreach($costs as $c)
+            <div class="relative w-full md:w-56">
+                <input 
+                    x-model="search"
+                    type="text"
+                    placeholder="Buscar categoria..."
+                    class="w-full px-3 py-2 pl-9 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-sm focus:ring-2 focus:ring-primary/70 focus:border-primary/70 outline-none transition"
+                >
+                <svg class="absolute left-2 top-2.5 w-4 h-4 text-gray-400 dark:text-gray-500" fill="none"
+                     stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
+                </svg>
+            </div>
 
-                @php
-                    $rowVals = [
-                        $c->{'Pago jan'}, $c->{'Pago fev'}, $c->{'Pago mar'}, $c->{'Pago abr'}, $c->{'Pago mai'}, $c->{'Pago jun'},
-                        $c->{'Pago jul'}, $c->{'Pago ago'}, $c->{'Pago set'}, $c->{'Pago out'}, $c->{'Pago nov'}, $c->{'Pago dez'},
-                    ];
-                    $total = collect($rowVals)->sum();
-                    $avg = $total / 12;
-                @endphp
+            <select 
+                x-model="filterEmpresa"
+                class="px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border focus:ring-2 focus:ring-primary/70 text-sm w-full md:w-44 transition"
+            >
+                <option value="">Empresa (CNPJ)</option>
 
-                <tr>
-
-                    <!-- CATEGORIA -->
-                    <td class="sticky left-0 px-4 py-3 font-medium">
-                        {{ $c->Categoria ?? $c->categoria }}
-                    </td>
-
-                    <!-- EMPRESA -->
-                    <td class="sticky left-48 px-4 py-3 text-gray-500">
-                        {{ $c->cnpj ?? '—' }}
-                    </td>
-
-                    <!-- MESES -->
-                    @foreach(['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'] as $m)
-                        @php $val = $c->{'Pago '.$m}; @endphp
-
-                        <td 
-                            data-clickable
-                            class="text-right"
-                            @click="openNotaModal('{{ $c->id }}','{{ $c->Categoria }}','{{ $c->{'Pago '.$m} }}','{{ $m }}')"
-                        >
-                            {{ number_format($val, 2, ',', '.') }}
-                        </td>
-                    @endforeach
-
-                    <!-- TOTAL -->
-                    <td class="text-right total">
-                        {{ number_format($total, 2, ',', '.') }}
-                    </td>
-
-                    <!-- MÉDIA -->
-                    <td class="text-right avg">
-                        {{ number_format($avg, 2, ',', '.') }}
-                    </td>
-
-                </tr>
-
+                @foreach($empresas as $e)
+                    <option value="{{ $e }}">{{ $e }}</option>
                 @endforeach
-            </tbody>
-        </table>
+            </select>
+            <button
+        class="px-4 py-2 text-sm font-semibold rounded-xl text-white hover:opacity-90 transition
+               bg-gradient-to-r from-[var(--brand-from)] to-[var(--brand-to)]
+               shadow-sm whitespace-nowrap"
+        @click="window.location='/financeiro/lancamentos/novo';"
+    >
+        + Novo Custo
+    </button>
+
+        </div>
     </div>
 
 
-    <!-- MODAL -->
+
+
+    
+
+<div x-data="costsDetail()" class="relative">
+
+    <div class="table-glass overflow-x-auto">
+<table class="table-premium">
+
+    <thead>
+        <tr>
+            <th class="sticky left-0 z-20 px-4 py-4 bg-inherit">Empresa</th>
+            <th class="sticky left-40 z-20 px-4 py-4 bg-inherit">Categoria</th>
+            <th class="sticky left-80 z-20 px-4 py-4 bg-inherit">Custo Fixo</th>
+
+            @foreach(['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'] as $m)
+                <th class="px-4 py-4 text-right">{{ strtoupper($m) }}</th>
+            @endforeach
+
+            <th class="px-4 py-4 text-right">Total</th>
+            <th class="px-4 py-4 text-right">Média</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach($costs as $c)
+
+        @php
+            $rowVals = [
+                $c->{'Pago jan'}, $c->{'Pago fev'}, $c->{'Pago mar'}, $c->{'Pago abr'},
+                $c->{'Pago mai'}, $c->{'Pago jun'}, $c->{'Pago jul'}, $c->{'Pago ago'},
+                $c->{'Pago set'}, $c->{'Pago out'}, $c->{'Pago nov'}, $c->{'Pago dez'},
+            ];
+
+            $total = collect($rowVals)->sum();
+            $avg   = $total / 12;
+            $custoFixo = $avg;
+        @endphp
+
+        <tr>
+
+            <td class="sticky left-0 px-4 py-3 text-gray-800 font-medium bg-white">
+                {{ $c->cnpj ?? '—' }}
+            </td>
+
+            <td class="sticky left-40 px-4 py-3 font-medium bg-white">
+                {{ $c->Categoria ?? $c->categoria }}
+            </td>
+
+            <td class="sticky left-80 px-4 py-3 text-right font-semibold text-blue-600 bg-white">
+                {{ number_format($custoFixo, 2, ',', '.') }}
+            </td>
+
+            @foreach(['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'] as $m)
+
+                @php
+                    $val = $c->{'Pago '.$m};
+
+                    $percent = $custoFixo > 0
+                        ? (($val - $custoFixo) / $custoFixo) * 100
+                        : 0;
+
+                    $colorClass = $val <= $custoFixo
+                        ? 'text-green-600 font-semibold'
+                        : 'text-red-600 font-semibold';
+                @endphp
+
+                <td
+                    class="text-right cursor-pointer hover:bg-black/5 transition {{ $colorClass }}"
+                    @click="openNotaModal('{{ $c->id }}','{{ $c->Categoria }}','{{ $val }}','{{ $m }}')"
+                >
+                    {{ number_format($val, 2, ',', '.') }}
+
+                    <span class="text-xs opacity-70 ml-1">
+                        ({{ number_format($percent, 1, ',', '.') }}%)
+                    </span>
+                </td>
+
+            @endforeach
+
+            <td class="text-right font-semibold">
+                {{ number_format($total, 2, ',', '.') }}
+            </td>
+
+            <td class="text-right">
+                {{ number_format($avg, 2, ',', '.') }}
+            </td>
+
+        </tr>
+
+        @endforeach
+    </tbody>
+
+</table>
+
+
+    </div>
+
+
     <div 
         x-show="showModal"
         x-transition.opacity
         x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center modal-overlay"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
     >
         <div class="modal-card space-y-6">
 
@@ -1308,17 +1262,28 @@ td.sticky-cell-2{
                 </a>
             </template>
 
-            <form @submit.prevent="saveNota">
+            <form @submit.prevent="saveNota" enctype="multipart/form-data">
 
                 <div class="space-y-2">
                     <label class="text-sm text-gray-500">Novo valor</label>
                     <input 
                         type="number"
                         step="0.01"
-                        class="w-full p-2"
+                        class="w-full p-2 rounded border"
                         x-model="valor"
                     >
                 </div>
+                <div class="space-y-2">
+    <label class="text-sm text-gray-500">Status</label>
+    <select 
+        x-model="status"
+        class="w-full p-2 rounded border bg-white"
+    >
+        <option value="1">Pago</option>
+        <option value="0">Pendente</option>
+    </select>
+</div>
+
 
                 <div class="space-y-2">
                     <label class="text-sm text-gray-500">Arquivo (opcional)</label>
@@ -1352,100 +1317,204 @@ td.sticky-cell-2{
     </div>
 </div>
 
+
+<script src="//unpkg.com/alpinejs" defer></script>
+
+<script src="//unpkg.com/alpinejs" defer></script>
+
 <script>
+/*
+  Script único com dois Alpine components:
+   - costsTable() -> controla filtros client-side (search por iniciais + filterEmpresa)
+   - costsDetail() -> mantém toda a lógica do modal (GET/POST/status/file) como já estava
+*/
+
+/* -------------------------
+   costsTable: filtros client
+   ------------------------- */
 document.addEventListener('alpine:init', () => {
-    Alpine.data('costsDetail', () => ({
+  Alpine.data('costsTable', () => ({
+    search: '',
+    filterEmpresa: '',
+    _debounceTimer: null,
 
-        showModal: false,
-        costId: null,
-        categoria: null,
-        month: null,
-        valor: null,
-        valor_atual: null,
-        file_url: null,
-        file: null,
+    init() {
+      // aplica filtro inicial
+      this.applyFilter();
 
-        // ============================
-        // OPEN MODAL
-        // ============================
-        openNotaModal(id, categoria, valor_atual, month){
-            this.costId       = id;
-            this.categoria    = categoria;
-            this.valor_atual  = valor_atual;
-            this.month        = month;
-            this.valor        = valor_atual;
-            this.file         = null;
-            this.file_url     = null;
+      // observa mudanças reativas no Alpine
+      this.$watch('search', () => {
+        // debounce 220ms
+        clearTimeout(this._debounceTimer);
+        this._debounceTimer = setTimeout(() => this.applyFilter(), 220);
+      });
 
-            this.loadNota();
-            this.showModal = true;
-        },
+      this.$watch('filterEmpresa', () => {
+        // filtro imediato (select)
+        this.applyFilter();
+      });
+    },
 
-        // ============================
-        // CLOSE MODAL
-        // ============================
-        closeModal(){
-            this.showModal = false;
-        },
+    applyFilter() {
+      // pega todas as linhas do tbody da tabela dentro deste escopo
+      // garantimos que a função seja robusta caso existam múltiplas tabelas
+      const tbody = document.querySelectorAll('[x-data="costsDetail()"] table.table-premium tbody');
+      if (!tbody || tbody.length === 0) return;
 
-        // ============================
-        // LOAD NOTA (GET)
-        // ============================
-        async loadNota(){
-            try {
-                const tokenTag = document.querySelector('meta[name=csrf-token]');
-                const csrf = tokenTag ? tokenTag.getAttribute('content') : '';
+      // compõe termos normalizados
+      const searchTerm = (this.search || '').toString().trim().toLowerCase();
+      const empresaTerm = (this.filterEmpresa || '').toString().trim();
 
-                let r = await fetch(`/financeiro/notas/${this.costId}/${this.month}`, {
-                    headers: { 'X-CSRF-TOKEN': csrf }
-                });
+      tbody.forEach(tb => {
+        tb.querySelectorAll('tr').forEach(row => {
+          // primeira coluna = categoria, segunda = cnpj (conforme seu HTML)
+          const tdCategoria = row.querySelector('td:nth-child(1)');
+          const tdCnpj = row.querySelector('td:nth-child(2)');
 
-                if(!r.ok) return;
+          const categoriaText = tdCategoria ? tdCategoria.textContent.trim().toLowerCase() : '';
+          const cnpjText = tdCnpj ? tdCnpj.textContent.trim() : '';
 
-                let data = await r.json();
+          // Search por INICIAIS: startsWith
+          const matchesSearch = searchTerm === '' 
+            ? true 
+            : categoriaText.startsWith(searchTerm);
 
-                this.valor_atual = data.valor ?? this.valor_atual;
-                this.valor       = data.valor ?? this.valor_atual;
-                this.file_url    = data.file_url ?? null;
+          // Empresa filter: if empty match all, else exact match (trim)
+          const matchesEmpresa = empresaTerm === '' 
+            ? true 
+            : cnpjText === empresaTerm;
 
-            } catch(e){
-                console.error(e);
-            }
-        },
+          const shouldShow = matchesSearch && matchesEmpresa;
 
-        // ============================
-        // SAVE NOTA (POST)
-        // ============================
-        async saveNota(){
+          row.style.display = shouldShow ? '' : 'none';
+        });
+      });
+    }
+  }));
+
+  /* -------------------------
+     costsDetail: modal + notas
+     (mantive a lógica que você já usa,
+      apenas consolidei aqui para garantir
+      que ambos os componentes existam)
+     ------------------------- */
+  Alpine.data('costsDetail', () => ({
+
+    showModal: false,
+    costId: null,
+    categoria: null,
+    month: null,
+    valor: null,
+    valor_atual: null,
+    file_url: null,
+    file: null,
+    status: 1, // default
+
+    // ============================
+    // OPEN MODAL
+    // ============================
+    openNotaModal(id, categoria, valor_atual, month){
+        this.costId       = id;
+        this.categoria    = categoria;
+        this.valor_atual  = valor_atual;
+        this.month        = month;
+        this.valor        = valor_atual;
+        this.file         = null;
+        this.file_url     = null;
+        this.status       = 1; // reset padrão
+
+        // carrega dados do servidor e só depois abre (evita flash / loops)
+        this.loadNota().then(() => {
+          this.showModal = true;
+        }).catch(() => {
+          // mesmo em erro, abre modal com valores atuais (opcional)
+          this.showModal = true;
+        });
+    },
+
+    // ============================
+    // CLOSE MODAL
+    // ============================
+    closeModal(){
+        this.showModal = false;
+    },
+
+    // ============================
+    // LOAD NOTA (GET)
+    // ============================
+    async loadNota(){
+        try {
             const tokenTag = document.querySelector('meta[name=csrf-token]');
             const csrf = tokenTag ? tokenTag.getAttribute('content') : '';
 
-            const form = new FormData();
-            form.append('valor', this.valor);
+            let r = await fetch(`/financeiro/notas/${this.costId}/${this.month}`, {
+                headers: { 'X-CSRF-TOKEN': csrf }
+            });
 
-            if (this.file) {
-                form.append('file', this.file);
+            if(!r.ok) {
+                // não alterar estado se request falhar
+                console.error('GET /financeiro/notas returned', r.status);
+                return;
             }
 
-            try {
-                await fetch(`/financeiro/notas/${this.costId}/${this.month}`, {
-                    method: "POST",
-                    headers: { 'X-CSRF-TOKEN': csrf },
-                    body: form,
-                });
+            let data = await r.json();
 
-                this.closeModal();
-                window.location.reload();
+            // atualiza apenas os campos esperados
+            this.valor_atual = (data.valor !== undefined && data.valor !== null) ? data.valor : this.valor_atual;
+            this.valor       = (data.valor !== undefined && data.valor !== null) ? data.valor : this.valor_atual;
+            this.file_url    = data.file_url ?? null;
+            this.status      = (data.status !== undefined && data.status !== null) ? Number(data.status) : 1;
 
-            } catch(e){
-                console.error(e);
-                alert("Erro ao salvar nota");
+        } catch(e){
+            console.error('Erro ao carregar nota:', e);
+            throw e;
+        }
+    },
+
+    // ============================
+    // SAVE NOTA (POST)
+    // ============================
+    async saveNota(){
+        const tokenTag = document.querySelector('meta[name=csrf-token]');
+        const csrf = tokenTag ? tokenTag.getAttribute('content') : '';
+
+        const form = new FormData();
+        form.append('valor', this.valor ?? 0);
+        form.append('status', this.status ?? 1);
+
+        if (this.file) {
+            form.append('file', this.file);
+        }
+
+        try {
+            const r = await fetch(`/financeiro/notas/${this.costId}/${this.month}`, {
+                method: "POST",
+                headers: { 'X-CSRF-TOKEN': csrf },
+                body: form,
+            });
+
+            if (!r.ok) {
+              console.error('POST /financeiro/notas returned', r.status);
+              alert('Erro ao salvar (servidor retornou erro).');
+              return;
             }
-        },
 
-    }))
-})
+            this.closeModal();
+            // atualiza a tabela — você já recarregava a página antes, mantive a reload
+            window.location.reload();
+
+        } catch(e){
+            console.error(e);
+            alert("Erro ao salvar nota");
+        }
+    },
+
+  }));
+});
 </script>
+
+
+
 
 
 

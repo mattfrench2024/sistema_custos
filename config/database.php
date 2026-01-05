@@ -60,7 +60,7 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            ],) : [],
         ],
 
         'mariadb' => [
@@ -112,6 +112,20 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
+        'easycollector' => [
+    'driver' => 'sqlsrv',
+    'host' => env('EASY_HOST', 'localhost'),
+    'port' => env('EASY_PORT', '1433'),
+    'database' => env('EASY_DATABASE', 'EASYCOLLECTOR'),
+    'username' => env('EASY_USERNAME'),
+    'password' => env('EASY_PASSWORD'),
+    'charset' => 'utf8',
+    'prefix' => '',
+    'prefix_indexes' => true,
+    'encrypt' => 'no',
+    'trust_server_certificate' => true,
+],
+
 
     ],
 

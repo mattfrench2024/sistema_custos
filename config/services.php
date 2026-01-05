@@ -14,6 +14,13 @@ return [
     |
     */
 
+    'verreschi' => [
+    'base_url'   => env('VERRESCHI_API_BASE'),
+    'app_key'    => env('VERRESCHI_APP_KEY'),
+    'app_secret' => env('VERRESCHI_APP_SECRET'),
+],
+
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

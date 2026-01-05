@@ -18,7 +18,13 @@ use App\Http\Controllers\ProductPriceController;
 use App\Http\Controllers\CostBaseController;
 use App\Http\Controllers\FinancialDashboardController;
 use App\Http\Controllers\CostEntryController;
-use App\Http\Controllers\CostNoteController;
+use App\Http\Controllers\CostsDashboardController;
+use App\Http\Controllers\FinanceiroNotaController;
+use App\Http\Controllers\OmieClienteController;
+use App\Http\Controllers\OmiePagarController;
+use App\Http\Controllers\OmieReceberController;
+use App\Http\Controllers\FinanceiroAnaliticoController;
+
 
 
 /*
@@ -27,10 +33,14 @@ use App\Http\Controllers\CostNoteController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('redirect.by.role')
-        : view('welcome');
+    return redirect()->route('login');
 });
+
+
+
+Route::get('/financeiro/recebimentos-sync', [\App\Http\Controllers\RecebimentosSyncController::class, 'index'])
+    ->name('financeiro.recebimentos.sync');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +61,8 @@ Route::middleware(['auth', 'verified'])
         };
     })
     ->name('redirect.by.role');
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -74,9 +86,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/auditoria',  [DashboardController::class, 'auditoria'])->name('dashboard.auditoria');
     });
 
+
+
     /*
     |--------------------------------------------------------------------------
-    | TI ADMIN
+    | TI ADMIN (ADMINISTRAÇÃO DO SISTEMA)
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:ti_admin')->group(function () {
@@ -90,29 +104,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('payrolls', PayrollController::class);
     });
 
+
+
     /*
     |--------------------------------------------------------------------------
-    | FINANCEIRO
+    | CUSTOS / FINANCEIRO – ACESSO PARA TODOS OS USUÁRIOS LOGADOS
     |--------------------------------------------------------------------------
     */
-   /*
-/*
-|--------------------------------------------------------------------------
-| CUSTOS – ACESSO PARA TODOS OS USUÁRIOS LOGADOS
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'verified'])->group(function () {
-
-    // despesas (financeiro edita)
     Route::resource('expenses', ExpenseController::class);
 
-    // invoices (somente leitura)
     Route::resource('invoices', InvoiceController::class)
         ->only(['index', 'show']);
 
+
     /*
     |--------------------------------------------------------------------------
-    | CATEGORIAS DE CUSTOS BASE
+    | NOTAS FISCAIS (NOVO SISTEMA)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/financeiro/notas/{id}/{month}', [FinanceiroNotaController::class, 'show'])
+        ->name('financeiro.notas.show');
+
+    Route::post('/financeiro/notas/{id}/{month}', [FinanceiroNotaController::class, 'store'])
+        ->name('financeiro.notas.store');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CUSTOS BASE
     |--------------------------------------------------------------------------
     */
     Route::get('/financeiro/custos', [CostBaseController::class, 'index'])
@@ -123,6 +142,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/financeiro/custos/{cost}', [CostBaseController::class, 'update'])
         ->name('financeiro.costs.update');
+
+
+        //area omie
+
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -135,22 +160,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/financeiro/lancamentos', [CostEntryController::class, 'store'])
         ->name('costs.store');
 
+        Route::get('/financeiro/receber', [\App\Http\Controllers\ReceberController::class, 'index'])
+    ->name('financeiro.receber.index');
     /*
-    |--------------------------------------------------------------------------
-    | NOTAS FISCAIS POR MÊS (GET/POST)
-    |--------------------------------------------------------------------------
-    | /financeiro/notas/{cost}/{mes}
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/financeiro/notas/{cost}/{mes}', [CostNoteController::class, 'show'])
-        ->name('financeiro.notas.show');
+|--------------------------------------------------------------------------
+| A PAGAR
+|--------------------------------------------------------------------------
+*/
 
-    Route::post('/financeiro/notas/{cost}/{mes}', [CostNoteController::class, 'save'])
-        ->name('financeiro.notas.save');
-
-});
-
-
+Route::get('/financeiro/pagar', [FinancialDashboardController::class, 'index'])
+    ->name('financeiro.pagar.index');
     /*
     |--------------------------------------------------------------------------
     | ROTAS PÚBLICAS DE CUSTOS PARA DASHBOARD
@@ -161,12 +180,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/costs/{id}/current-month', [FinancialDashboardController::class, 'showCurrentMonth'])
         ->name('costs.currentMonth');
- // Notas (anexos e valores por mês)
-Route::get('/public/notas/{cost}/{mes}', [CostAttachmentController::class, 'show'])
-        ->name('financeiro.notas.show');
 
-    Route::post('/notas/{cost}/{mes}', [CostAttachmentController::class, 'store'])
-        ->name('financeiro.notas.store');
+
+// ROTAS OMIE
+Route::prefix('omie/{empresa}')
+    ->name('omie.') // isso vai gerar: omie.pagar.index, omie.receber.index
+    ->middleware(['auth', 'verified', 'omie.empresa'])
+    ->group(function () {
+
+        // Contas a Pagar
+        Route::get('/pagar', [OmiePagarController::class, 'index'])
+            ->name('pagar.index');
+
+        Route::get('/pagar/{pagar:codigo_lancamento_omie}', [OmiePagarController::class, 'show'])
+            ->name('pagar.show');
+
+        // Contas a Receber
+        Route::get('/receber', [OmieReceberController::class, 'index'])
+            ->name('receber.index');
+
+        Route::get('/receber/{receber}', [OmieReceberController::class, 'show'])
+            ->name('receber.show');
+});
+Route::get(
+    '/financeiro/analitico/empresa/{empresa}',
+    [FinanceiroAnaliticoController::class, 'empresa']
+)->name('financeiro.analitico.empresa');
+
+
+
+    //omie analítico
+    Route::get('/financeiro/analitico', [FinanceiroAnaliticoController::class, 'dashboard'])
+    ->name('financeiro.analitico.dashboard');
+
     /*
     |--------------------------------------------------------------------------
     | RH / DP
@@ -189,22 +235,21 @@ Route::get('/public/notas/{cost}/{mes}', [CostAttachmentController::class, 'show
         Route::resource('product_prices', ProductPriceController::class)
             ->except(['destroy']);
 
-        // área de custos RH
         Route::get('/rh/area-custos', [CostEntryController::class, 'index'])
             ->name('rh.costs.index');
     });
 
+
+
     /*
     |--------------------------------------------------------------------------
-    | ROTAS DE COST_ENTRIES SEM MIDDLEWARE ESPECÍFICO
-    |--------------------------------------------------------------------------
-    |
-    | ⚠️ Mantidas porque fazem parte do seu código original
-    | e podem ser usadas por múltiplos papéis
+    | COST ENTRIES (ACESSO GERAL)
     |--------------------------------------------------------------------------
     */
     Route::resource('cost_entries', CostEntryController::class)
         ->except(['show']);
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -212,31 +257,36 @@ Route::get('/public/notas/{cost}/{mes}', [CostAttachmentController::class, 'show
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:auditoria,ti_admin')->group(function () {
-        Route::get('/logs',     [AuditLogController::class, 'index'])->name('logs.index');
-        Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.audit');
-        Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.audit');
+
+        Route::get('/auditoria', [CostsDashboardController::class, 'index'])
+            ->name('dashboard.auditoria');
+
+        Route::get('/logs', [AuditLogController::class, 'index'])
+            ->name('logs.index');
+
+        Route::get('/invoices/auditoria', [InvoiceController::class, 'index'])
+    ->name('invoices.audit');
+
+
+        Route::get('/expenses/auditoria', [ExpenseController::class, 'index'])
+            ->name('expenses.audit');
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Página informativa do papel
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/role-info', function () {
-        return view('dashboards.role-info');
-    })->name('role.info');
+
 
     /*
     |--------------------------------------------------------------------------
-    | Notificações internas
+    | NOTIFICAÇÕES INTERNAS
     |--------------------------------------------------------------------------
     */
     Route::get('/notifications', [NotificationInternalController::class, 'index'])
         ->name('notifications.index');
 
+
+
     /*
     |--------------------------------------------------------------------------
-    | Perfil
+    | PERFIL
     |--------------------------------------------------------------------------
     */
     Route::prefix('profile')->group(function () {
@@ -244,7 +294,10 @@ Route::get('/public/notas/{cost}/{mes}', [CostAttachmentController::class, 'show
         Route::patch('/',   [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/',  [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
+
 });
+
+
 
 /*
 |--------------------------------------------------------------------------

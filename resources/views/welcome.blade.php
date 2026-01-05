@@ -61,7 +61,7 @@
     {{-- HEADER --}}
     <header class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
         <a href="{{ route('login') }}" class="flex items-center gap-3">
-            <img src="{{ asset('img/verreschi_management.png') }}" 
+            <img src="{{ asset('img/verreschi_management.webp') }}" 
                  class="w-11 h-11 object-contain rounded-xl shadow-sm"
                  alt="Verreschi Management">
 
