@@ -21,6 +21,8 @@ class Kernel extends HttpKernel
 
     protected $commands = [
     \App\Console\Commands\OmieImportContasReceber::class,
+        \App\Console\Commands\OmieImportContaCorrente::class,
+
 ];
 
     /**

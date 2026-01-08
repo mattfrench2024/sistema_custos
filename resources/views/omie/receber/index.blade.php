@@ -184,7 +184,6 @@ tbody td {
         <table>
             <thead>
                 <tr>
-                    <th>Código</th>
                     <th>Cliente</th>
                     <th>Vencimento</th>
                     <th>Valor</th>
@@ -204,13 +203,11 @@ tbody td {
                         };
                     @endphp
                     <tr>
-                        <td data-label="Código">
-                            {{ $item->codigo_lancamento_omie }}
-                        </td>
+
 
                         <td data-label="Cliente">
-                            {{ $item->codigo_cliente_fornecedor }}
-                        </td>
+    {{ $item->nome_cliente }}
+</td>
 
                         <td data-label="Vencimento">
                             {{ $item->data_vencimento?->format('d/m/Y') }}
@@ -221,9 +218,10 @@ tbody td {
                         </td>
 
                         <td data-label="Status">
-                            <span class="badge {{ $statusClass }}">
-                                {{ ucfirst($item->status) }}
+                            <span class="badge {{ $item->statusColor() }}">
+                                {{ $item->status_calculado }}
                             </span>
+
                         </td>
 
                         <td data-label="Ações" class="text-center">

@@ -4,25 +4,29 @@
 
 <style>
     :root {
-        --brand-orange: #f97316;
-        --brand-orange-soft: #ffedd5;
+    --brand-orange: #f97316;
+    --brand-orange-soft: #ffedd5;
 
-        --brand-purple: #7c3aed;
-        --brand-purple-soft: #ede9fe;
+    --brand-purple: #7c3aed;
+    --brand-purple-soft: #ede9fe;
 
-        --surface: #ffffff;
-        --surface-muted: #f9fafb;
+    --surface: #ffffff;
+    --surface-muted: #f9fafb;
 
-        --text-primary: #111827;
-        --text-secondary: #6b7280;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
 
-        --radius-lg: 1rem;
-        --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-md: 0.75rem;
 
-        --shadow-soft:
-            0 1px 2px rgba(0,0,0,.04),
-            0 12px 32px rgba(0,0,0,.08);
-    }
+    --shadow-soft:
+        0 1px 2px rgba(0,0,0,.04),
+        0 12px 32px rgba(0,0,0,.08);
+}
+    .tr {
+    background: var(--brand-orange);
+    color: white;
+}
 
     .card {
         background: var(--surface);
@@ -91,72 +95,123 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
             </p>
         </div>
     </div>
+<form method="GET" class="flex items-center gap-4 mb-4">
+    <input type="hidden" name="empresa_codigo" value="{{ $empresaCodigo }}">
+    <input type="hidden" name="empresa_slug" value="{{ $empresaSlug }}">
+
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">
+            Tipo de documento
+        </label>
+
+        <select
+            name="tipo_documento"
+            onchange="this.form.submit()"
+            class="rounded-lg border-gray-300 text-sm px-3 py-2 focus:ring focus:ring-gray-200"
+        >
+            <option value="">Todos</option>
+
+            @foreach($tiposDocumento as $tipo)
+                <option
+                    value="{{ $tipo->codigo }}"
+                    @selected($tipoSelecionado === $tipo->codigo)
+                >
+                    {{ $tipo->descricao }} ({{ $tipo->codigo }})
+                </option>
+            @endforeach
+        </select>
+    </div>
+</form>
 
     {{-- Tabela --}}
     <div class="card overflow-x-auto">
         <table class="min-w-full text-sm">
-            <thead class="table-header text-[0.65rem] uppercase tracking-widest text-gray-500">
-                <tr>
-                    <th class="px-5 py-4 text-left font-semibold">Fornecedor</th>
-                    <th class="px-5 py-4 text-center font-semibold">Emissão</th>
-                    <th class="px-5 py-4 text-center font-semibold">Vencimento</th>
-                    <th class="px-5 py-4 text-right font-semibold">Valor</th>
-                    <th class="px-5 py-4 text-center font-semibold">Status</th>
-                    <th class="px-5 py-4 text-center font-semibold">Ações</th>
-                </tr>
-            </thead>
+    <thead class="table-header text-[0.65rem] uppercase tracking-widest text-gray-500">
+        <tr>
+            <th class="px-5 py-4 text-left font-semibold">Fornecedor</th>
+            <th class="px-5 py-4 text-center font-semibold">Emissão</th>
+            <th class="px-5 py-4 text-center font-semibold">Vencimento</th>
+            <th class="px-5 py-4 text-right font-semibold">Valor</th>
+            <th class="px-5 py-4 text-center font-semibold">Status</th>
+            <th class="px-5 py-4 text-center font-semibold">Ações</th>
+            <th class="px-5 py-4 text-center font-semibold">Tipo</th>
+        </tr>
+    </thead>
 
-            <tbody class="divide-y divide-gray-100">
-                @forelse($contas as $conta)
-                    <tr class="row-hover">
-                        <td class="px-5 py-4 font-medium text-gray-800">
-                            {{ $conta->codigo_cliente_fornecedor ?? '—' }}
-                        </td>
-
-                        <td class="px-5 py-4 text-center text-gray-600">
-                            {{ optional($conta->data_emissao)->format('d/m/Y') ?? '—' }}
-                        </td>
-
-                        <td class="px-5 py-4 text-center text-gray-600">
-                            {{ optional($conta->data_vencimento)->format('d/m/Y') ?? '—' }}
-                        </td>
-
-                        <td class="px-5 py-4 text-right font-semibold text-gray-900">
-                            R$ {{ number_format($conta->valor_documento, 2, ',', '.') }}
-                        </td>
-
-                        <td class="px-5 py-4 text-center">
-                            <span class="badge
-                                {{ $conta->status_titulo === 'PAGO'
-                                    ? 'badge-success'
-                                    : 'badge-warning' }}">
-                                {{ $conta->status_titulo ?? '—' }}
-                            </span>
-                        </td>
-
-                        <td class="px-5 py-4 text-center">
-                            <a
-    href="{{ route('omie.pagar.show', [
-        'empresa' => $empresaSlug,
-        'pagar'   => $conta->codigo_lancamento_omie
-    ]) }}"
-    class="action-link"
->
-    Ver detalhes
-</a>
+    <tbody class="divide-y divide-gray-100">
+        @forelse($contas as $conta)
+            <tr class="row-hover">
+                <td class="px-5 py-4 font-medium text-gray-800">
+    {{ $conta->nome_fornecedor }}
+</td>
 
 
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-gray-500">
-                            Nenhuma conta encontrada.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                <td class="px-5 py-4 text-center text-gray-600">
+                    {{ optional($conta->data_emissao)->format('d/m/Y') ?? '—' }}
+                </td>
+
+                <td class="px-5 py-4 text-center text-gray-600">
+                    {{ optional($conta->data_vencimento)->format('d/m/Y') ?? '—' }}
+                </td>
+
+                <td class="px-5 py-4 text-right font-semibold text-gray-900">
+                    R$ {{ number_format($conta->valor_documento, 2, ',', '.') }}
+                </td>
+
+                <td class="px-5 py-4 text-center">
+                    @php
+    $status = $conta->status_calculado;
+@endphp
+
+<span class="
+    px-3 py-1 rounded-full text-xs font-semibold
+    @if($status === 'VENCIDO') bg-red-100 text-red-700
+    @elseif($status === 'PAGO') bg-green-100 text-green-700
+    @elseif($status === 'CANCELADO') bg-gray-200 text-gray-700
+    @else bg-yellow-100 text-yellow-700
+    @endif
+">
+    {{ $status }}
+</span>
+
+                </td>
+
+                <td class="px-5 py-4 text-center">
+                    <a
+                        href="{{ route('omie.pagar.show', [
+                            'empresa' => $empresaSlug,
+                            'pagar'   => $conta->codigo_lancamento_omie
+                        ]) }}"
+                        class="action-link"
+                    >
+                        Ver detalhes
+                    </a>
+                </td>
+
+                <td class="px-4 py-2 text-sm text-center">
+    @if($conta->codigo_tipo_documento === '99999')
+        <span class="text-gray-400 italic">
+            Outros
+        </span>
+    @else
+        <span class="font-medium text-gray-700">
+            {{ $conta->tipoDocumento->descricao }}
+        </span>
+    @endif
+</td>
+
+
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                    Nenhuma conta encontrada.
+                </td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
     </div>
 
     {{-- Paginação --}}

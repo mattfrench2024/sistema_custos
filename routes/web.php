@@ -24,6 +24,9 @@ use App\Http\Controllers\OmieClienteController;
 use App\Http\Controllers\OmiePagarController;
 use App\Http\Controllers\OmieReceberController;
 use App\Http\Controllers\FinanceiroAnaliticoController;
+use App\Http\Controllers\OmieCategoriaController;
+use App\Http\Controllers\OmieContaCorrenteController;
+use App\Http\Controllers\OmieContratoController;
 
 
 
@@ -184,28 +187,76 @@ Route::get('/financeiro/pagar', [FinancialDashboardController::class, 'index'])
 
 // ROTAS OMIE
 Route::prefix('omie/{empresa}')
-    ->name('omie.') // isso vai gerar: omie.pagar.index, omie.receber.index
+    ->name('omie.')
     ->middleware(['auth', 'verified', 'omie.empresa'])
     ->group(function () {
 
-        // Contas a Pagar
+        /**
+         * ============================
+         * CONTAS A PAGAR
+         * ============================
+         */
         Route::get('/pagar', [OmiePagarController::class, 'index'])
             ->name('pagar.index');
 
         Route::get('/pagar/{pagar:codigo_lancamento_omie}', [OmiePagarController::class, 'show'])
             ->name('pagar.show');
 
-        // Contas a Receber
+        /**
+         * ============================
+         * CONTAS A RECEBER
+         * ============================
+         */
         Route::get('/receber', [OmieReceberController::class, 'index'])
             ->name('receber.index');
 
         Route::get('/receber/{receber}', [OmieReceberController::class, 'show'])
             ->name('receber.show');
-});
+
+        /**
+         * ============================
+         * CONTAS CORRENTES
+         * ============================
+         */
+        Route::get('/contas-correntes', [OmieContaCorrenteController::class, 'index'])
+            ->name('contas-correntes.index');
+
+        Route::get('/contas-correntes/{contaCorrente}', [OmieContaCorrenteController::class, 'show'])
+            ->name('contas-correntes.show');
+
+        /**
+         * ============================
+         * CONTRATOS
+         * ============================
+         */
+        Route::get('/contratos', [OmieContratoController::class, 'index'])
+            ->name('contratos.index');
+
+        Route::get('/contratos/{contrato}', [OmieContratoController::class, 'show'])
+            ->name('contratos.show');
+            /**
+         * ============================
+         * CLIENTES E FORNECEDORES
+         * ============================
+         */
+            Route::get('/clientes', [OmieClienteController::class, 'index'])
+            ->name('clientes.index');
+
+        Route::get('/clientes/{cliente}', [OmieClienteController::class, 'show'])
+            ->name('clientes.show');
+    });
+
+
 Route::get(
     '/financeiro/analitico/empresa/{empresa}',
     [FinanceiroAnaliticoController::class, 'empresa']
 )->name('financeiro.analitico.empresa');
+Route::prefix('omie')->group(function () {
+    Route::get('/categorias/{empresa}', [OmieCategoriaController::class, 'index'])
+        ->name('omie.categorias.index');
+          Route::get('/categorias/{empresa}/{codigo}', [OmieCategoriaController::class, 'show'])
+        ->name('omie.categorias.show');
+});
 
 
 

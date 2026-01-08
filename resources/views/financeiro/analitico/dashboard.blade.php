@@ -85,7 +85,7 @@ body {
     <div class="flex justify-between items-end">
         <div>
             <h1 class="text-3xl font-bold tracking-tight">
-                Financeiro Analítico
+                Financeiro 
             </h1>
             <p class="text-sm text-gray-400">
                 Visão consolidada e auditável — {{ $ano }}
@@ -179,63 +179,7 @@ body {
         </div>
     </section>
 
-    {{-- TOP RECEBIMENTOS / PAGAMENTOS --}}
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="card">
-            <h3 class="section-title mb-4">Top Recebimentos</h3>
-            <ul class="space-y-2 text-sm">
-                @foreach($topRecebimentos as $r)
-                    <li class="flex justify-between">
-                        <span>{{ $r['empresa'] }}</span>
-                        <span class="positive">
-                            R$ {{ number_format($r['total'], 2, ',', '.') }}
-                        </span>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
 
-        <div class="card">
-            <h3 class="section-title mb-4">Top Pagamentos</h3>
-            <ul class="space-y-2 text-sm">
-                @foreach($topPagamentos as $p)
-                    <li class="flex justify-between">
-                        <span>{{ $p['empresa'] }}</span>
-                        <span class="negative">
-                            R$ {{ number_format($p['total'], 2, ',', '.') }}
-                        </span>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-    </section>
-
-    {{-- DEPENDÊNCIA DE FATURAMENTO --}}
-    <section class="space-y-3">
-        <div>
-            <h2 class="section-title">Dependência de Faturamento</h2>
-            <p class="section-subtitle">
-                Concentração de receita por empresa
-            </p>
-        </div>
-
-        <div class="card">
-            <canvas id="dependenciaChart" height="140"></canvas>
-        </div>
-    </section>
-
-    {{-- RISCO --}}
-    <section class="card">
-        <h2 class="section-title">% de Meses Negativos</h2>
-        <p class="text-5xl font-bold mt-4 negative">
-            {{ $percentualMesesNegativos }}%
-        </p>
-        <p class="text-sm text-gray-400 mt-2">
-            Meses onde despesas superaram receitas
-        </p>
-    </section>
-
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

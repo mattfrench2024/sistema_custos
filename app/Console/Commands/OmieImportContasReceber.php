@@ -76,9 +76,21 @@ class OmieImportContasReceber extends Command
                         : $dataVencimento;
 
                     // Se o código de integração estiver vazio, geramos um identificador único
-                    $codigoIntegracao = !empty($conta['codigo_lancamento_integracao'])
-                        ? $conta['codigo_lancamento_integracao']
-                        : 'TMP_' . uniqid() . '_' . $codigoEmpresa;
+                    $codigoIntegracao =
+    $conta['codigo_lancamento_integracao']
+    ?? $conta['codigo_lancamento_omie']
+    ?? $conta['id_titulo']
+    ?? null;
+
+if (!$codigoIntegracao) {
+    // Fallback determinístico (sempre gera o MESMO código para o mesmo título)
+    $codigoIntegracao = 'TMP_' . md5(
+        ($conta['codigo_cliente_fornecedor'] ?? '') .
+        ($conta['data_vencimento'] ?? '') .
+        ($conta['valor_documento'] ?? '')
+    );
+}
+
 
                     OmieReceber::updateOrCreate(
                         [
