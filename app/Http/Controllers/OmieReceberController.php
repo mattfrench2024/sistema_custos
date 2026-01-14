@@ -62,7 +62,4 @@ public function show($empresa, OmieReceber $receber)
 
     return view('omie.receber.show', compact('receber', 'empresa'));
 }
-
-
-
 }

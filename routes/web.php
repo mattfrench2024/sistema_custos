@@ -27,8 +27,11 @@ use App\Http\Controllers\FinanceiroAnaliticoController;
 use App\Http\Controllers\OmieCategoriaController;
 use App\Http\Controllers\OmieContaCorrenteController;
 use App\Http\Controllers\OmieContratoController;
-
-
+use App\Http\Controllers\OmieMovimentoFinanceiroController;
+use App\Http\Controllers\OmieServicoController;
+use App\Http\Controllers\OmieResumoFinancasController;
+use App\Http\Controllers\OmieEmpresaController;
+use App\Http\Controllers\OmieFinanceiroConsolidadoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,7 +60,7 @@ Route::middleware(['auth', 'verified'])
 
         return match ($role) {
             'ti_admin'   => redirect()->route('dashboard.admin'),
-            'financeiro' => redirect()->route('dashboard.financeiro'),
+            'financeiro' => redirect()->route('financeiro.analitico.dashboard'),
             'rh'         => redirect()->route('dashboard.rh'),
             'auditoria'  => redirect()->route('dashboard.auditoria'),
             default      => redirect()->route('dashboard'),
@@ -215,6 +218,17 @@ Route::prefix('omie/{empresa}')
 
         /**
          * ============================
+         * MOVIMENTOS FINANCEIROS
+         * ============================
+         */
+        Route::get('/movimentos-financeiros', [OmieMovimentoFinanceiroController::class, 'index'])
+            ->name('movimentos.index');
+
+        Route::get('/movimentos-financeiros/{movimento}', [OmieMovimentoFinanceiroController::class, 'show'])
+            ->name('movimentos.show');
+
+        /**
+         * ============================
          * CONTAS CORRENTES
          * ============================
          */
@@ -234,17 +248,70 @@ Route::prefix('omie/{empresa}')
 
         Route::get('/contratos/{contrato}', [OmieContratoController::class, 'show'])
             ->name('contratos.show');
-            /**
+
+        /**
          * ============================
-         * CLIENTES E FORNECEDORES
+         * CLIENTES
          * ============================
          */
-            Route::get('/clientes', [OmieClienteController::class, 'index'])
+        Route::get('/clientes', [OmieClienteController::class, 'index'])
             ->name('clientes.index');
 
         Route::get('/clientes/{cliente}', [OmieClienteController::class, 'show'])
             ->name('clientes.show');
+
+        /**
+         * ============================
+         * SERVIÇOS ✅ (CORRETO)
+         * ============================
+         */
+        Route::get('/servicos', [OmieServicoController::class, 'index'])
+            ->name('servicos.index');
+
+        Route::get('/servicos/{servico}', [OmieServicoController::class, 'show'])
+            ->name('servicos.show');
+             Route::get('resumo-financas', [
+            OmieResumoFinancasController::class,
+            'index'
+        ])->name('omie.resumo-financas.index');
+/**
+ * ============================
+ * EMPRESAS
+ * ============================
+ */
+Route::get('/empresas', [OmieEmpresaController::class, 'index'])
+    ->name('empresas.index');
+
+Route::get('/empresas/{empresaModel}', [OmieEmpresaController::class, 'show'])
+    ->name('empresas.show');
+    /**
+ * ============================
+ * FINANCEIRO CONSOLIDADO (EXECUTIVO)
+ * ============================
+ */
+Route::get('/financeiro-consolidado', [
+    OmieFinanceiroConsolidadoController::class,
+    'index'
+])->name('financeiro-consolidado.index');
+
+
+         /**
+ * ============================
+ * RESUMO FINANCEIRO
+ * ============================
+ */
+Route::get('/resumo-financas', [
+    OmieResumoFinancasController::class,
+    'index'
+])->name('resumo-financas.index');
+
+Route::get('/resumo-financas/{resumo}', [
+    OmieResumoFinancasController::class,
+    'show'
+])->name('resumo-financas.show');
     });
+   
+
 
 
 Route::get(

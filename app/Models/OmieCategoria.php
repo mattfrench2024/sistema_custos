@@ -99,4 +99,16 @@ class OmieCategoria extends Model
     {
         return $this->pagar()->exists() || $this->receber()->exists();
     }
+    public function servicos()
+{
+    return $this->hasMany(
+        OmieServico::class,
+        'codigo_categoria',
+        'codigo'
+    )->whereColumn(
+        'omie_servicos.empresa',
+        'omie_categorias.empresa'
+    );
+}
+
 }

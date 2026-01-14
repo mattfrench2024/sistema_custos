@@ -41,7 +41,10 @@ class OmiePagar extends Model
     {
         return 'codigo_lancamento_omie';
     }
-
+public function movimentoFinanceiro()
+    {
+        return $this->belongsTo(OmieMovimentoFinanceiro::class, 'codigo_lancamento_omie', 'codigo_lancamento_omie');
+    }
     /* =====================================================
      | RELACIONAMENTOS
      ===================================================== */

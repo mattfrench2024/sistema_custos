@@ -33,7 +33,7 @@ class OmieReceber extends Model
     protected $table = 'omie_receber';
 
     protected $guarded = ['id'];
-    
+
  protected $fillable = [
         'empresa',
         'codigo_lancamento_integracao',
@@ -60,7 +60,10 @@ class OmieReceber extends Model
     /* =====================================================
      | RELACIONAMENTOS
      ===================================================== */
-
+    public function movimentoFinanceiro()
+    {
+        return $this->belongsTo(OmieMovimentoFinanceiro::class, 'codigo_lancamento_integracao', 'codigo_lancamento_omie');
+    }
     public function cliente()
     {
         return $this->belongsTo(

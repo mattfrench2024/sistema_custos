@@ -106,4 +106,45 @@
         background: var(--bg-glass);
         box-shadow: var(--shadow-soft);
     }
+    /* ========================================================
+   Sidebar Menu — UX Premium (Apple × Stripe)
+   ======================================================== */
+@layer components {
+
+    .menu-section {
+        @apply text-xs uppercase tracking-wider text-gray-400 mb-2 px-2;
+    }
+
+    .menu-link {
+        @apply flex items-center gap-3 px-4 py-2 rounded-xl
+               text-gray-600 dark:text-gray-300
+               transition-all duration-200 ease-out;
+    }
+
+    .menu-link:hover {
+        background: linear-gradient(
+            90deg,
+            rgba(249,115,22,0.15),
+            rgba(251,191,36,0.15)
+        );
+        color: var(--brand-primary);
+        transform: translateX(6px);
+    }
+
+    .menu-link.active {
+        background: linear-gradient(
+            90deg,
+            rgba(249,115,22,0.22),
+            rgba(251,191,36,0.22)
+        );
+        color: var(--brand-primary);
+        font-weight: 500;
+    }
+
+    .menu-link span:first-child {
+        width: 20px;
+        text-align: center;
+    }
+}
+
 }

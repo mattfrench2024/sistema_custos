@@ -21,6 +21,15 @@ class FinanceiroAnalitico extends Model
             '36' => 'Grupo Verreschi',
         ];
     }
+    public static function empresasSlugMap()
+{
+    return [
+        'sverreschi' => '04',
+        'verreschi'  => '30',
+        'grupo'      => '36',
+    ];
+}
+
 
     private static function nomeEmpresa($codigo)
     {
@@ -30,55 +39,46 @@ class FinanceiroAnalitico extends Model
     /* =========================================================
      * BASES COM FILTROS DINÂMICOS (ÚNICA FONTE DA VERDADE)
      * ========================================================= */
-   private static function receberBase($ano, $mes = null, $empresa = null)
+private static function receberBase($ano, $mes = null, $empresa = null)
 {
     return DB::table('omie_receber as base')
         ->whereYear('base.data_vencimento', $ano)
-        ->when($mes, fn ($q) =>
-            $q->whereMonth('base.data_vencimento', $mes)
-        )
-        ->when($empresa, fn ($q) =>
-            $q->where('base.empresa', $empresa)
-        )
-        ->where('base.status', '<>', 'cancelado');
+        ->when($mes, fn ($q) => $q->whereMonth('base.data_vencimento', $mes))
+        ->when($empresa, fn ($q) => $q->where('base.empresa', $empresa))
+->where('base.status', '=', 'RECEBIDO');
 }
 
-
-    private static function pagarBase($ano, $mes = null, $empresa = null)
+private static function pagarBase($ano, $mes = null, $empresa = null)
 {
     return DB::table('omie_pagar as base')
         ->whereYear('base.data_vencimento', $ano)
-        ->when($mes, fn ($q) =>
-            $q->whereMonth('base.data_vencimento', $mes)
-        )
-        ->when($empresa, fn ($q) =>
-            $q->where('base.empresa', $empresa)
-        );
+        ->when($mes, fn ($q) => $q->whereMonth('base.data_vencimento', $mes))
+        ->when($empresa, fn ($q) => $q->where('base.empresa', $empresa))
+        ->where('base.status_titulo', 'PAGO');
 }
+
+
 
 
     /* =========================================================
      * KPIs EXECUTIVOS (BOARD LEVEL)
      * ========================================================= */
     public static function kpis($ano, $mes = null, $empresa = null)
-    {
-        $receita = self::receberBase($ano, $mes, $empresa)->sum('valor_documento');
-        $custos  = self::pagarBase($ano, $mes, $empresa)->sum('valor_documento');
+{
+    $receita = self::receberBase($ano, $mes, $empresa)->sum('valor_documento');
+    $custos  = self::pagarBase($ano, $mes, $empresa)->sum('valor_documento');
 
-        $saldo  = $receita - $custos;
-        $margem = $receita > 0 ? ($saldo / $receita) * 100 : 0;
+    $saldo  = $receita - $custos;
+    $margem = $receita > 0 ? ($saldo / $receita) * 100 : 0;
 
-        return [
-            'receita' => round($receita, 2),
-            'custos'  => round($custos, 2),
-            'saldo'   => round($saldo, 2),
-            'margem'  => round($margem, 2),
-            'ticket_medio' => round(
-                self::receberBase($ano, $mes, $empresa)->avg('valor_documento'),
-                2
-            ),
-        ];
-    }
+    return [
+        'receita' => round($receita, 2),
+        'custos'  => round($custos, 2),
+        'saldo'   => round($saldo, 2),
+        'margem'  => round($margem, 2),
+    ];
+}
+
 
     /* =========================================================
      * EVOLUÇÃO MENSAL + VOLATILIDADE
@@ -125,21 +125,23 @@ class FinanceiroAnalitico extends Model
     /* =========================================================
      * CONCENTRAÇÃO DE RECEITA (RISCO)
      * ========================================================= */
-    public static function concentracaoReceita($ano, $mes = null)
-    {
-        $total = self::receberBase($ano, $mes)->sum('valor_documento');
+    public static function concentracaoReceita($ano, $mes = null, $empresa = null)
+{
+    $total = self::receberBase($ano, $mes, $empresa)->sum('valor_documento');
 
-        return self::receberBase($ano, $mes)
-            ->selectRaw('empresa, SUM(valor_documento) total')
-            ->groupBy('empresa')
-            ->orderByDesc('total')
-            ->get()
-            ->map(fn ($r) => [
-                'empresa'    => self::nomeEmpresa($r->empresa),
-                'total'      => round($r->total, 2),
-                'percentual' => $total > 0 ? round(($r->total / $total) * 100, 2) : 0,
-            ]);
-    }
+    return self::receberBase($ano, $mes, $empresa)
+        ->selectRaw('empresa, SUM(valor_documento) total')
+        ->groupBy('empresa')
+        ->orderByDesc('total')
+        ->get()
+        ->map(fn ($r) => [
+            'empresa'    => self::nomeEmpresa($r->empresa),
+            'percentual' => $total > 0
+                ? round(($r->total / $total) * 100, 2)
+                : 0,
+        ]);
+}
+
 
     /* =========================================================
      * ALERTAS AUTOMÁTICOS (INTELIGÊNCIA FINANCEIRA)
@@ -207,9 +209,9 @@ class FinanceiroAnalitico extends Model
     /* =========================================================
  * TOP RECEBIMENTOS (CONCENTRAÇÃO POSITIVA)
  * ========================================================= */
-public static function topRecebimentos($ano, $mes = null)
+public static function topRecebimentos($ano, $mes = null, $empresa = null)
 {
-    return self::receberBase($ano, $mes)
+    return self::receberBase($ano, $mes, $empresa)
         ->selectRaw('empresa, SUM(valor_documento) total')
         ->groupBy('empresa')
         ->orderByDesc('total')
@@ -221,12 +223,9 @@ public static function topRecebimentos($ano, $mes = null)
         ]);
 }
 
-/* =========================================================
- * TOP PAGAMENTOS (DRE NEGATIVO)
- * ========================================================= */
-public static function topPagamentos($ano, $mes = null)
+public static function topPagamentos($ano, $mes = null, $empresa = null)
 {
-    return self::pagarBase($ano, $mes)
+    return self::pagarBase($ano, $mes, $empresa)
         ->selectRaw('empresa, SUM(valor_documento) total')
         ->groupBy('empresa')
         ->orderByDesc('total')
@@ -237,75 +236,65 @@ public static function topPagamentos($ano, $mes = null)
             'total'   => round($p->total, 2),
         ]);
 }
-public static function topClientes($ano, $mes, $empresa, $limit = 5)
+
+public static function topClientes($ano, $mes = null, $empresa = null, $limit = 5)
 {
-    return self::receberBase($ano, $mes, $empresa)
-        ->from('omie_receber as base')
+    $query = self::receberBase($ano, $mes, $empresa)
         ->leftJoin('omie_clientes as c', function ($join) {
             $join->on(
                 'c.codigo_cliente_omie',
                 '=',
                 'base.codigo_cliente_fornecedor'
             );
-            $join->whereRaw(
-                'c.empresa COLLATE utf8mb4_unicode_ci
-                 = base.empresa COLLATE utf8mb4_unicode_ci'
-            );
         })
         ->selectRaw('
             base.codigo_cliente_fornecedor,
-            ' . self::nomePessoaSql() . ' as cliente,
+            COALESCE(c.nome_fantasia, c.razao_social, CONCAT("Cliente #", base.codigo_cliente_fornecedor)) as cliente,
             SUM(base.valor_documento) as total
         ')
         ->groupBy('base.codigo_cliente_fornecedor', 'cliente')
         ->orderByDesc('total')
-        ->limit($limit)
-        ->get()
-        ->map(fn ($c) => [
-            'cliente' => $c->cliente,
-            'codigo'  => $c->codigo_cliente_fornecedor,
-            'total'   => round($c->total, 2),
-        ]);
+        ->limit($limit);
+
+    return $query->get()->map(fn($c) => [
+        'cliente' => $c->cliente,
+        'codigo'  => $c->codigo_cliente_fornecedor,
+        'total'   => round($c->total, 2),
+    ]);
 }
 
-
-
-
-public static function topFornecedores($ano, $mes, $empresa, $limit = 5)
+public static function topFornecedores($ano, $mes = null, $empresa = null, $limit = 5)
 {
-    return self::pagarBase($ano, $mes, $empresa)
-        ->from('omie_pagar as base')
+    $query = self::pagarBase($ano, $mes, $empresa)
         ->leftJoin('omie_clientes as c', function ($join) {
             $join->on(
                 'c.codigo_cliente_omie',
                 '=',
                 'base.codigo_cliente_fornecedor'
             );
-            $join->whereRaw(
-                'c.empresa COLLATE utf8mb4_unicode_ci
-                 = base.empresa COLLATE utf8mb4_unicode_ci'
-            );
         })
         ->selectRaw('
             base.codigo_cliente_fornecedor,
-            ' . self::nomePessoaSql() . ' as fornecedor,
+            COALESCE(c.nome_fantasia, c.razao_social, CONCAT("Fornecedor #", base.codigo_cliente_fornecedor)) as fornecedor,
             SUM(base.valor_documento) as total
         ')
         ->groupBy('base.codigo_cliente_fornecedor', 'fornecedor')
         ->orderByDesc('total')
-        ->limit($limit)
-        ->get()
-        ->map(fn ($f) => [
-            'fornecedor' => $f->fornecedor,
-            'codigo'     => $f->codigo_cliente_fornecedor,
-            'total'      => round($f->total, 2),
-        ]);
+        ->limit($limit);
+
+    return $query->get()->map(fn($f) => [
+        'fornecedor' => $f->fornecedor,
+        'codigo'     => $f->codigo_cliente_fornecedor,
+        'total'      => round($f->total, 2),
+    ]);
 }
 
 
 
 
-public static function concentracaoClientes($ano, $mes, $empresa)
+
+
+public static function concentracaoClientes($ano, $mes = null, $empresa = null)
 {
     $total = self::receberBase($ano, $mes, $empresa)->sum('valor_documento');
 
@@ -329,6 +318,7 @@ public static function concentracaoClientes($ano, $mes, $empresa)
         ')
         ->groupBy('base.codigo_cliente_fornecedor', 'cliente')
         ->orderByDesc('total')
+        ->limit(5)
         ->get()
         ->map(fn ($c) => [
             'cliente' => $c->cliente,
@@ -337,5 +327,6 @@ public static function concentracaoClientes($ano, $mes, $empresa)
                 : 0,
         ]);
 }
+
 
 }

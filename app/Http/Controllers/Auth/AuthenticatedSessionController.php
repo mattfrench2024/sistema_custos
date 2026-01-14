@@ -26,7 +26,7 @@ class AuthenticatedSessionController extends Controller
 
     return redirect()->to(match ($role) {
         'ti', 'ti_superadmin', 'admin', 'ti_admin' => '/dashboard/admin',
-        'financeiro' => '/dashboard/financeiro',
+        'financeiro' => '/financeiro/analitico',
         'rh', 'dp' => '/dashboard/rh',
         'auditoria', 'diretoria' => '/dashboard/auditoria',
         default => '/dashboard',

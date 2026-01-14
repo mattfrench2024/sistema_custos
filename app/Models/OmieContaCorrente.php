@@ -56,5 +56,13 @@ public function receber()
 {
     return $this->hasMany(OmieReceber::class, 'id_conta_corrente', 'omie_cc_id');
 }
+ public function lancamentos()
+    {
+        return $this->hasMany(OmieContaCorrenteLancamento::class, 'omie_cc_id', 'omie_cc_id');
+    }
 
+    public function movimentosFinanceiros()
+    {
+        return $this->hasMany(OmieMovimentoFinanceiro::class, 'codigo_conta_corrente', 'omie_cc_id');
+    }
 }

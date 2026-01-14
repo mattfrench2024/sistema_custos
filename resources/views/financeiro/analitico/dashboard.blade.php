@@ -72,12 +72,339 @@ body {
     color: #111827;
 }
 
-.section-subtitle {
-    font-size: .85rem;
+/* ===============================
+   SIDEBAR — PREMIUM SAAS
+   =============================== */
+
+.sidebar-container {
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,.96),
+        rgba(249,250,251,.92)
+    );
+}
+
+/* Scroll refinado */
+.sidebar-scroll {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,.25) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,.25);
+    border-radius: 999px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0,0,0,.45);
+}
+
+/* Títulos */
+.sidebar-title {
+    margin-bottom: .4rem;
+    font-size: .65rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
     color: var(--muted);
 }
 
+/* Links principais */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .6rem .75rem;
+    border-radius: 12px;
+    font-weight: 500;
+    color: #111827;
+    transition: all .18s ease;
+}
+
+.sidebar-link:hover {
+    background: linear-gradient(
+        90deg,
+        rgba(249,115,22,.10),
+        rgba(251,191,36,.10)
+    );
+}
+
+.sidebar-link.active {
+    background: linear-gradient(
+        90deg,
+        var(--brand-from),
+        var(--brand-to)
+    );
+    color: #fff;
+    font-weight: 600;
+    box-shadow:
+        0 6px 18px rgba(249,115,22,.25),
+        inset 0 1px 0 rgba(255, 123, 0, 1);
+}
+
+/* Sub-links */
+.sidebar-sub {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: .42rem .75rem .42rem 1.4rem;
+    margin-left: .4rem;
+    border-radius: 10px;
+    font-size: .78rem;
+    color: var(--muted);
+    transition: all .18s ease;
+}
+
+.sidebar-sub::before {
+    content: '';
+    position: absolute;
+    left: .55rem;
+    top: 50%;
+    width: 4px;
+    height: 4px;
+    background: currentColor;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    opacity: .4;
+}
+
+.sidebar-sub:hover {
+    color: #111827;
+    background: rgba(0,0,0,.035);
+}
+
+.sidebar-sub.active {
+    color: var(--brand-from);
+    font-weight: 600;
+    background: rgba(249,115,22,.10);
+}
+
+.sidebar-section {
+    margin-top: 1.35rem;
+}
 </style>
+
+{{-- SIDEBAR --}}
+<aside class="fixed top-0 left-0 h-screen w-64 p-5 hidden lg:flex z-40">
+
+    <div class="sidebar-container h-full w-full rounded-[18px]
+                border border-[var(--glass-border)]
+                shadow-[var(--shadow-soft)]
+                flex flex-col">
+
+        {{-- MENU --}}
+        <nav class="flex-1 px-4 py-4 text-sm sidebar-scroll space-y-7">
+
+            {{-- VISÃO GERAL --}}
+            <div class="sidebar-section">
+                <p class="sidebar-title">Visão Geral</p>
+
+                <a href="/financeiro/analitico"
+                   class="sidebar-link {{ request()->is('financeiro/analitico') ? 'active' : '' }}">
+                    📊 Dashboard Geral
+                </a>
+            </div>
+
+            {{-- FINANCEIRO ANALÍTICO --}}
+            <div class="sidebar-section">
+                <p class="sidebar-title">Financeiro Analítico</p>
+
+                <a href="/financeiro/analitico/empresa/sv"
+                   class="sidebar-link {{ request()->is('financeiro/analitico/empresa/sv*') ? 'active' : '' }}">
+                    ⚖️ Advogados (SV)
+                </a>
+
+                <a href="/financeiro/analitico/empresa/vs"
+                   class="sidebar-link {{ request()->is('financeiro/analitico/empresa/vs*') ? 'active' : '' }}">
+                    💼 Soluções (VS)
+                </a>
+
+                <a href="/financeiro/analitico/empresa/gv"
+                   class="sidebar-link {{ request()->is('financeiro/analitico/empresa/gv*') ? 'active' : '' }}">
+                    🏢 Grupo (GV)
+                </a>
+            </div>
+
+            {{-- OMIE --}}
+            <div class="sidebar-section">
+                <p class="sidebar-title">Omie</p>
+
+                {{-- RESUMO FINANCEIRO --}}
+                <div class="space-y-1">
+                    <p class="text-xs text-[var(--muted)] mb-1">Resumo Financeiro</p>
+
+                    <a href="/omie/sv/resumo-financas"
+                       class="sidebar-sub {{ request()->is('omie/sv/resumo-financas*') ? 'active' : '' }}">
+                        SV
+                    </a>
+
+                    <a href="/omie/vs/resumo-financas"
+                       class="sidebar-sub {{ request()->is('omie/vs/resumo-financas*') ? 'active' : '' }}">
+                        VS
+                    </a>
+
+                    <a href="/omie/gv/resumo-financas"
+                       class="sidebar-sub {{ request()->is('omie/gv/resumo-financas*') ? 'active' : '' }}">
+                        GV
+                    </a>
+                </div>
+                {{-- FINANCEIRO CONSOLIDADO --}}
+<div class="space-y-1 mt-4">
+    <p class="text-xs text-[var(--muted)] mb-1">Projeções</p>
+
+    <a href="/omie/sv/financeiro-consolidado"
+       class="sidebar-sub {{ request()->is('omie/sv/financeiro-consolidado*') ? 'active' : '' }}">
+        SV
+    </a>
+
+    <a href="/omie/vs/financeiro-consolidado"
+       class="sidebar-sub {{ request()->is('omie/vs/financeiro-consolidado*') ? 'active' : '' }}">
+        VS
+    </a>
+
+    <a href="/omie/gv/financeiro-consolidado"
+       class="sidebar-sub {{ request()->is('omie/gv/financeiro-consolidado*') ? 'active' : '' }}">
+        GV
+    </a>
+</div>
+
+                {{-- MOVIMENTOS FINANCEIROS --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Movimentos Financeiros</p>
+
+                    <a href="/omie/sv/movimentos-financeiros"
+                       class="sidebar-sub {{ request()->is('omie/sv/movimentos-financeiros*') ? 'active' : '' }}">SV</a>
+
+                    <a href="/omie/vs/movimentos-financeiros"
+                       class="sidebar-sub {{ request()->is('omie/vs/movimentos-financeiros*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/gv/movimentos-financeiros"
+                       class="sidebar-sub {{ request()->is('omie/gv/movimentos-financeiros*') ? 'active' : '' }}">GV</a>
+                </div>
+
+                {{-- CONTAS A PAGAR --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Contas a Pagar</p>
+
+                    <a href="/omie/sv/pagar"
+                       class="sidebar-sub {{ request()->is('omie/sv/pagar*') ? 'active' : '' }}">SV</a>
+
+                    <a href="/omie/vs/pagar"
+                       class="sidebar-sub {{ request()->is('omie/vs/pagar*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/gv/pagar"
+                       class="sidebar-sub {{ request()->is('omie/gv/pagar*') ? 'active' : '' }}">GV</a>
+                </div>
+
+                {{-- CONTAS A RECEBER --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Contas a Receber</p>
+
+                    <a href="/omie/sv/receber"
+                       class="sidebar-sub {{ request()->is('omie/sv/receber*') ? 'active' : '' }}">SV</a>
+
+                    <a href="/omie/vs/receber"
+                       class="sidebar-sub {{ request()->is('omie/vs/receber*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/gv/receber"
+                       class="sidebar-sub {{ request()->is('omie/gv/receber*') ? 'active' : '' }}">GV</a>
+                </div>
+
+                {{-- CONTAS CORRENTES --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Contas Correntes</p>
+
+                    <a href="/omie/sv/contas-correntes"
+                       class="sidebar-sub {{ request()->is('omie/sv/contas-correntes*') ? 'active' : '' }}">SV</a>
+
+                    <a href="/omie/vs/contas-correntes"
+                       class="sidebar-sub {{ request()->is('omie/vs/contas-correntes*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/gv/contas-correntes"
+                       class="sidebar-sub {{ request()->is('omie/gv/contas-correntes*') ? 'active' : '' }}">GV</a>
+                </div>
+
+                {{-- CLIENTES --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Clientes</p>
+
+                    <a href="/omie/sv/clientes"
+                       class="sidebar-sub {{ request()->is('omie/sv/clientes*') ? 'active' : '' }}">SV</a>
+
+                    <a href="/omie/vs/clientes"
+                       class="sidebar-sub {{ request()->is('omie/vs/clientes*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/gv/clientes"
+                       class="sidebar-sub {{ request()->is('omie/gv/clientes*') ? 'active' : '' }}">GV</a>
+                </div>
+
+                {{-- CONTRATOS --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Contratos</p>
+
+                    <a href="/omie/sv/contratos"
+                       class="sidebar-sub {{ request()->is('omie/sv/contratos*') ? 'active' : '' }}">SV</a>
+
+                    <a href="/omie/vs/contratos"
+                       class="sidebar-sub {{ request()->is('omie/vs/contratos*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/gv/contratos"
+                       class="sidebar-sub {{ request()->is('omie/gv/contratos*') ? 'active' : '' }}">GV</a>
+                </div>
+
+                {{-- SERVIÇOS --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Serviços</p>
+
+                    <a href="/omie/sv/servicos"
+                       class="sidebar-sub {{ request()->is('omie/sv/servicos*') ? 'active' : '' }}">SV</a>
+
+                    <a href="/omie/vs/servicos"
+                       class="sidebar-sub {{ request()->is('omie/vs/servicos*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/gv/servicos"
+                       class="sidebar-sub {{ request()->is('omie/gv/servicos*') ? 'active' : '' }}">GV</a>
+                </div>
+
+                {{-- CATEGORIAS --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Categorias</p>
+
+                    <a href="/omie/categorias/sv"
+                       class="sidebar-sub {{ request()->is('omie/categorias/sv*') ? 'active' : '' }}">SV</a>
+
+                    <a href="/omie/categorias/vs"
+                       class="sidebar-sub {{ request()->is('omie/categorias/vs*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/categorias/gv"
+                       class="sidebar-sub {{ request()->is('omie/categorias/gv*') ? 'active' : '' }}">GV</a>
+                </div>
+                {{-- EMPRESAS --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Empresas</p>
+                    <a href="/omie/sv/empresas"
+                       class="sidebar-sub {{ request()->is('omie/sv/empresas*') ? 'active' : '' }}">SV</a>
+                    <a href="/omie/vs/empresas"
+                       class="sidebar-sub {{ request()->is('omie/vs/empresas*') ? 'active' : '' }}">VS</a>
+                    <a href="/omie/gv/empresas"
+                       class="sidebar-sub {{ request()->is('omie/gv/empresas*') ? 'active' : '' }}">GV</a>
+                </div>
+            </div>
+        </nav>
+
+        {{-- FOOTER --}}
+        <div class="px-4 py-3 border-t text-xs text-[var(--muted)]">
+            © {{ date('Y') }} Grupo Verreschi
+        </div>
+
+    </div>
+</aside>
+
+
+
+
 
 <div class="max-w-7xl mx-auto px-6 py-10 space-y-14">
 
@@ -212,24 +539,5 @@ new Chart(document.getElementById('mensalChart'), {
     }
 });
 
-new Chart(document.getElementById('dependenciaChart'), {
-    type: 'doughnut',
-    data: {
-labels: @json($concentracaoReceita->pluck('empresa')),
-        datasets: [{
-data:   @json($concentracaoReceita->pluck('percentual')),
-            backgroundColor: [
-                '#ff7a18',
-                '#ffb347',
-                '#7e22cc',
-                '#22c55e',
-                '#3b82f6'
-            ]
-        }]
-    },
-    options: {
-        plugins: { legend: { labels: { color: '#9ca3af' } } }
-    }
-});
 </script>
 @endsection
