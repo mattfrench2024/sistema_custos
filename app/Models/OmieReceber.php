@@ -4,6 +4,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OmieCliente;
+use App\Models\OmieCategoria;
 
 class OmieReceber extends Model
 {
@@ -34,14 +35,17 @@ class OmieReceber extends Model
 
     protected $guarded = ['id'];
 
- protected $fillable = [
-        'empresa',
-        'codigo_lancamento_integracao',
-        'id_conta_corrente',
-        'valor_documento',
-        'status',
-        'data_vencimento',
-    ];
+protected $fillable = [
+    'empresa',
+    'codigo_lancamento_integracao',
+    'codigo_cliente_fornecedor',
+    'codigo_categoria',
+    'id_conta_corrente',
+    'valor_documento',
+    'status',
+    'data_vencimento',
+];
+
     protected $casts = [
         'payload'         => 'array',
         'retorno_omie'    => 'array',
@@ -53,8 +57,21 @@ class OmieReceber extends Model
      * Route Model Binding
      */
     public function getRouteKeyName(): string
+{
+    return 'id';
+}
+ public const STATUS = [
+        'pendente'   => 'Pendente',
+        'a vencer'   => 'A vencer',
+        'vence hoje' => 'Vence hoje',
+        'atrasado'   => 'Atrasado',
+        'recebido'   => 'Recebido',
+        'cancelado'  => 'Cancelado',
+    ];
+
+    public function podeEditarStatus(): bool
     {
-        return 'codigo_lancamento_integracao';
+        return ! in_array($this->status, ['recebido', 'cancelado']);
     }
 
     /* =====================================================
@@ -71,6 +88,12 @@ class OmieReceber extends Model
             'codigo_cliente_fornecedor',
             'codigo_cliente_omie'
         );
+    }
+    
+    public function categoria()
+    {
+        // Join pelo código da categoria
+        return $this->belongsTo(OmieCategoria::class, 'codigo_categoria', 'codigo');
     }
 
     /* =====================================================

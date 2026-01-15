@@ -177,6 +177,33 @@ tbody td {
             </span>
         </h1>
     </div>
+<form method="GET" class="mb-4 flex flex-wrap gap-2 items-end">
+    <div>
+        <label class="block text-gray-700 text-xs font-semibold">Mês</label>
+        <select name="mes" class="form-select">
+            <option value="">Todos</option>
+            @for($m=1; $m<=12; $m++)
+                <option value="{{ $m }}" @if(request('mes') == $m) selected @endif>
+                    {{ str_pad($m,2,'0',STR_PAD_LEFT) }}
+                </option>
+            @endfor
+        </select>
+    </div>
+
+    <div>
+        <label class="block text-gray-700 text-xs font-semibold">Ano</label>
+        <select name="ano" class="form-select">
+            <option value="">Todos</option>
+            @for($y = now()->year-5; $y <= now()->year+1; $y++)
+                <option value="{{ $y }}" @if(request('ano') == $y) selected @endif>{{ $y }}</option>
+            @endfor
+        </select>
+    </div>
+
+    <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+        Filtrar
+    </button>
+</form>
 
     {{-- Table --}}
     <div class="table-container">
@@ -187,6 +214,7 @@ tbody td {
                     <th>Cliente</th>
                     <th>Vencimento</th>
                     <th>Valor</th>
+                    <th>Categoria</th>
                     <th>Status</th>
                     <th class="text-center">Ações</th>
                 </tr>
@@ -194,14 +222,8 @@ tbody td {
 
             <tbody>
                 @forelse ($receber as $item)
-                    @php
-                        $statusClass = match(strtolower($item->status)) {
-                            'recebido' => 'status-recebido',
-                            'pendente' => 'status-pendente',
-                            'atrasado' => 'status-atrasado',
-                            default => 'bg-gray-100 text-gray-700',
-                        };
-                    @endphp
+                   
+
                     <tr>
 
 
@@ -216,6 +238,14 @@ tbody td {
                         <td data-label="Valor">
                             R$ {{ number_format($item->valor_documento, 2, ',', '.') }}
                         </td>
+                        <td data-label="Categoria">
+    @if($item->categoria)
+        {{ $item->categoria->descricao }}
+    @else
+        <span class="text-gray-400 italic">Não definida</span>
+    @endif
+</td>
+
 
                         <td data-label="Status">
                             <span class="badge {{ $item->statusColor() }}">
@@ -226,11 +256,12 @@ tbody td {
 
                         <td data-label="Ações" class="text-center">
                             <a
-                                href="{{ route('omie.receber.show', [$empresa, $item->codigo_lancamento_integracao]) }}"
-                                class="action-link"
-                            >
-                                Ver →
-                            </a>
+    href="{{ route('omie.receber.show', ['empresa' => $empresa, 'receber' => $item]) }}"
+    class="action-link"
+>
+    Ver →
+</a>
+
                         </td>
                     </tr>
                 @empty

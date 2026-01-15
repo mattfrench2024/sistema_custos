@@ -5,6 +5,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OmieCliente;
 use App\Models\OmieTipoDocumento;
+    use App\Models\OmieCategoria;
 
 class OmiePagar extends Model
 {
@@ -100,4 +101,10 @@ public function getStatusCalculadoAttribute(): string
             ?: $this->fornecedor->razao_social
             ?: 'Fornecedor #' . $this->codigo_cliente_fornecedor;
     }
+
+public function categoria()
+{
+    // Apenas o join pelo código da categoria
+    return $this->belongsTo(OmieCategoria::class, 'codigo_categoria', 'codigo');
+}
 }

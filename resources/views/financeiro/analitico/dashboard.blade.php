@@ -284,33 +284,83 @@ body {
                        class="sidebar-sub {{ request()->is('omie/gv/movimentos-financeiros*') ? 'active' : '' }}">GV</a>
                 </div>
 
-                {{-- CONTAS A PAGAR --}}
-                <div class="space-y-1 mt-4">
-                    <p class="text-xs text-[var(--muted)] mb-1">Contas a Pagar</p>
+               {{-- CONTAS A PAGAR --}}
+<div class="space-y-1 mt-4">
+    <p class="text-xs text-[var(--muted)] mb-1">Contas a Pagar</p>
 
-                    <a href="/omie/sv/pagar"
-                       class="sidebar-sub {{ request()->is('omie/sv/pagar*') ? 'active' : '' }}">SV</a>
+    {{-- SV --}}
+    <a href="{{ route('omie.pagar.index', ['empresa' => 'sv']) }}"
+       class="sidebar-sub {{ request()->is('omie/sv/pagar*') ? 'active' : '' }}">
+        SV · Listar
+    </a>
 
-                    <a href="/omie/vs/pagar"
-                       class="sidebar-sub {{ request()->is('omie/vs/pagar*') ? 'active' : '' }}">VS</a>
+    <a href="{{ route('omie.pagar.create', ['empresa' => 'sv']) }}"
+       class="sidebar-sub text-orange-600 hover:text-orange-700">
+        ➕ Novo Custo
+    </a>
 
-                    <a href="/omie/gv/pagar"
-                       class="sidebar-sub {{ request()->is('omie/gv/pagar*') ? 'active' : '' }}">GV</a>
-                </div>
+    {{-- VS --}}
+    <a href="{{ route('omie.pagar.index', ['empresa' => 'vs']) }}"
+       class="sidebar-sub {{ request()->is('omie/vs/pagar*') ? 'active' : '' }}">
+        VS · Listar
+    </a>
+
+    <a href="{{ route('omie.pagar.create', ['empresa' => 'vs']) }}"
+       class="sidebar-sub text-orange-600 hover:text-orange-700">
+        ➕ Novo Custo
+    </a>
+
+    {{-- GV --}}
+    <a href="{{ route('omie.pagar.index', ['empresa' => 'gv']) }}"
+       class="sidebar-sub {{ request()->is('omie/gv/pagar*') ? 'active' : '' }}">
+        GV · Listar
+    </a>
+
+    <a href="{{ route('omie.pagar.create', ['empresa' => 'gv']) }}"
+       class="sidebar-sub text-orange-600 hover:text-orange-700">
+        ➕ Novo Custo
+    </a>
+</div>
+
 
                 {{-- CONTAS A RECEBER --}}
-                <div class="space-y-1 mt-4">
-                    <p class="text-xs text-[var(--muted)] mb-1">Contas a Receber</p>
+<div class="space-y-1 mt-4">
+    <p class="text-xs text-[var(--muted)] mb-1">Contas a Receber</p>
 
-                    <a href="/omie/sv/receber"
-                       class="sidebar-sub {{ request()->is('omie/sv/receber*') ? 'active' : '' }}">SV</a>
+    {{-- SV --}}
+    <a href="{{ route('omie.receber.index', ['empresa' => 'sv']) }}"
+       class="sidebar-sub {{ request()->is('omie/sv/receber*') ? 'active' : '' }}">
+        SV · Listar
+    </a>
 
-                    <a href="/omie/vs/receber"
-                       class="sidebar-sub {{ request()->is('omie/vs/receber*') ? 'active' : '' }}">VS</a>
+    <a href="{{ route('omie.receber.create', ['empresa' => 'sv']) }}"
+       class="sidebar-sub text-emerald-600 hover:text-emerald-700">
+        ➕ Novo Recebimento
+    </a>
 
-                    <a href="/omie/gv/receber"
-                       class="sidebar-sub {{ request()->is('omie/gv/receber*') ? 'active' : '' }}">GV</a>
-                </div>
+    {{-- VS --}}
+    <a href="{{ route('omie.receber.index', ['empresa' => 'vs']) }}"
+       class="sidebar-sub {{ request()->is('omie/vs/receber*') ? 'active' : '' }}">
+        VS · Listar
+    </a>
+
+    <a href="{{ route('omie.receber.create', ['empresa' => 'vs']) }}"
+       class="sidebar-sub text-emerald-600 hover:text-emerald-700">
+        ➕ Novo Recebimento
+    </a>
+
+    {{-- GV --}}
+    <a href="{{ route('omie.receber.index', ['empresa' => 'gv']) }}"
+       class="sidebar-sub {{ request()->is('omie/gv/receber*') ? 'active' : '' }}">
+        GV · Listar
+    </a>
+
+    <a href="{{ route('omie.receber.create', ['empresa' => 'gv']) }}"
+       class="sidebar-sub text-emerald-600 hover:text-emerald-700">
+        ➕ Novo Recebimento
+    </a>
+</div>
+
 
                 {{-- CONTAS CORRENTES --}}
                 <div class="space-y-1 mt-4">

@@ -63,6 +63,27 @@ p { color: var(--text-secondary); }
 .status-pendente { background: #fef3c7; color: #78350f; }
 .status-atrasado { background: #fee2e2; color: #991b1b; }
 
+/* Inputs */
+.select,
+.button {
+    font-size: .75rem;
+    border-radius: .5rem;
+}
+.select {
+    padding: .45rem .6rem;
+    border: 1px solid #e5e7eb;
+}
+.button {
+    padding: .45rem .9rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    transition: opacity .15s ease;
+}
+.button:hover {
+    opacity: .9;
+}
+
 /* Section */
 .section {
     margin-top: 2rem;
@@ -134,6 +155,71 @@ p { color: var(--text-secondary); }
         </div>
     </div>
 
+    {{-- STATUS / AÇÃO --}}
+    <div class="card">
+    <h2 class="section-title">Status do Recebimento</h2>
+
+    {{-- BADGE DE STATUS --}}
+    <div class="flex items-center gap-4 mt-2">
+
+        <span class="px-3 py-1 rounded-full text-xs font-semibold
+            {{ $receber->statusColor() }}">
+            {{ $receber->status_calculado }}
+        </span>
+
+        @if ($receber->podeEditarStatus())
+            <button
+                type="button"
+                onclick="document.getElementById('form-status').classList.toggle('hidden')"
+                class="text-xs text-blue-600 hover:underline">
+                Alterar status
+            </button>
+        @endif
+    </div>
+
+    {{-- FORM DE ALTERAÇÃO --}}
+    @if ($receber->podeEditarStatus())
+        <form
+            id="form-status"
+            action="{{ route('omie.receber.update-status', [$empresa, $receber]) }}"
+            method="POST"
+            class="hidden mt-4 p-4 rounded-lg border bg-gray-50 flex flex-col gap-3 max-w-sm"
+        >
+            @csrf
+            @method('PATCH')
+
+            <label class="label">Novo status</label>
+
+            <select name="status" class="input text-sm" required>
+                @foreach (\App\Models\OmieReceber::STATUS as $key => $label)
+                    <option value="{{ $key }}" @selected($receber->status === $key)>
+                        {{ $label }}
+                    </option>
+                @endforeach
+            </select>
+
+            <div class="flex gap-2 pt-2">
+                <button
+                    type="submit"
+                    class="px-4 py-2 rounded-md text-sm font-semibold
+                           bg-gradient-to-r from-[var(--brand-from)] to-[var(--brand-to)]
+                           text-white hover:opacity-95 transition">
+                    Salvar
+                </button>
+
+                <button
+                    type="button"
+                    onclick="document.getElementById('form-status').classList.add('hidden')"
+                    class="px-4 py-2 rounded-md text-sm border hover:bg-gray-100">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    @endif
+</div>
+
+    </div>
+
     {{-- Detalhes --}}
     <div class="card">
         <h2 class="section-title">Detalhes Financeiros</h2>
@@ -152,21 +238,6 @@ p { color: var(--text-secondary); }
             <div>
                 <span class="label">Conta Corrente</span>
                 <p class="value mt-1">{{ $receber->id_conta_corrente ?? '—' }}</p>
-            </div>
-
-            <div>
-                <span class="label">Status</span>
-                @php
-                    $statusClass = match(strtolower($receber->status)) {
-                        'recebido' => 'status-recebido',
-                        'pendente' => 'status-pendente',
-                        'atrasado' => 'status-atrasado',
-                        default => 'bg-gray-100 text-gray-700',
-                    };
-                @endphp
-                <div class="mt-1">
-                    <span class="badge {{ $statusClass }}">{{ ucfirst($receber->status) }}</span>
-                </div>
             </div>
         </div>
     </div>

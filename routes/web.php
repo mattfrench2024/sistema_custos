@@ -194,27 +194,64 @@ Route::prefix('omie/{empresa}')
     ->middleware(['auth', 'verified', 'omie.empresa'])
     ->group(function () {
 
-        /**
-         * ============================
-         * CONTAS A PAGAR
-         * ============================
-         */
+        // ============================
+        // CONTAS A PAGAR
+        // ============================
+
         Route::get('/pagar', [OmiePagarController::class, 'index'])
             ->name('pagar.index');
 
-        Route::get('/pagar/{pagar:codigo_lancamento_omie}', [OmiePagarController::class, 'show'])
-            ->name('pagar.show');
+        Route::get('/pagar/create', [OmiePagarController::class, 'create'])
+            ->name('pagar.create');
+
+        Route::post('/pagar', [OmiePagarController::class, 'store'])
+            ->name('pagar.store');
+
+        Route::get(
+            '/pagar/{pagar:codigo_lancamento_omie}',
+            [OmiePagarController::class, 'show']
+        )->name('pagar.show');
+
+        Route::patch(
+            '/pagar/{pagar}/status',
+            [OmiePagarController::class, 'toggleStatus']
+        )->name('pagar.toggle-status');
+
+
+
+
 
         /**
-         * ============================
-         * CONTAS A RECEBER
-         * ============================
-         */
-        Route::get('/receber', [OmieReceberController::class, 'index'])
-            ->name('receber.index');
+ * ============================
+ * CONTAS A RECEBER
+ * ============================
+ */
 
-        Route::get('/receber/{receber}', [OmieReceberController::class, 'show'])
-            ->name('receber.show');
+Route::get('/receber', [OmieReceberController::class, 'index'])
+    ->name('receber.index');
+
+Route::get('/receber/create', [OmieReceberController::class, 'create'])
+    ->name('receber.create');
+
+Route::post('/receber', [OmieReceberController::class, 'store'])
+    ->name('receber.store');
+
+Route::get('/receber/{receber}/edit', [OmieReceberController::class, 'edit'])
+    ->name('receber.edit');
+
+Route::patch('/receber/{receber}', [OmieReceberController::class, 'update'])
+    ->name('receber.update');
+
+Route::get('/receber/{receber}', [OmieReceberController::class, 'show'])
+    ->name('receber.show');
+    Route::patch(
+    '/receber/{receber}/status',
+    [OmieReceberController::class, 'updateStatus']
+)->name('receber.update-status');
+
+
+
+
 
         /**
          * ============================

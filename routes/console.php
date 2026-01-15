@@ -1,37 +1,49 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
-| CONTAS A RECEBER — A CADA HORA
+| IMPORTAÇÕES AUTOMÁTICAS — A CADA HORA
 |--------------------------------------------------------------------------
+|
+| Todos os comandos listados serão executados a cada hora para os três
+| ambientes/sucursais: gv, sv, vs. O log será salvo em storage/logs/omie.log
+|
 */
-Schedule::command('omie:import-receber sv')
-    ->hourlyAt(0)
-    ->withoutOverlapping();
 
-Schedule::command('omie:import-receber vs')
-    ->hourlyAt(5)
-    ->withoutOverlapping();
+$comandos = [
+    'omie:import-categorias',
+    'omie:import-clientes',
+    'omie:import-conta-corrente',
+    'omie:import-conta-corrente-lancamentos',
+    'omie:import-contas-pagar',
+    'omie:import-contas-receber',
+    'omie:import-contratos',
+    'omie:import-documentos-fiscais',
+    'omie:import-empresas',
+    'omie:import-extrato-bancario',
+    'omie:import-mf',
+    'omie:import-movimentos-financeiros',
+    'omie:import-oportunidades',
+    'omie:import-orcamentos',
+    'omie:import-produtos',
+    'omie:import-resumo-financas',
+    'omie:import-servicos',
+    'omie:import-tarefas',
+    'omie:import-tipos-documento',
+];
 
-Schedule::command('omie:import-receber gv')
-    ->hourlyAt(10)
-    ->withoutOverlapping();
+// Sucursais
+$sucursais = ['gv', 'sv', 'vs'];
 
-/*
-|--------------------------------------------------------------------------
-| CONTAS A PAGAR — A CADA HORA
-|--------------------------------------------------------------------------
-*/
-Schedule::command('omie:import-pagar sv')
-    ->hourlyAt(20)
-    ->withoutOverlapping();
-
-Schedule::command('omie:import-pagar vs')
-    ->hourlyAt(30)
-    ->withoutOverlapping();
-
-Schedule::command('omie:import-pagar gv')
-    ->hourlyAt(40)
-    ->withoutOverlapping();
+// Agendamento
+foreach ($comandos as $index => $comando) {
+    foreach ($sucursais as $sucursal) {
+        Schedule::command("$comando $sucursal")
+            ->hourlyAt($index * 3) // espaçamento de 3 min entre comandos
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/omie.log"));
+    }
+}
