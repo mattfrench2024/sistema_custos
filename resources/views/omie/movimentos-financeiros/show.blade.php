@@ -186,10 +186,23 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
 
             <div>
-                <div class="label">Código do lançamento (Omie)</div>
-                <div class="value">
-                    {{ $movimento->codigo_lancamento_omie ?? '—' }}
-                </div>
+                
+
+
+{{-- NOVO BLOCO: Envolvido (Cliente/Fornecedor) --}}
+<div class="mt-4">
+    <div class="label">Envolvido (Cliente / Fornecedor)</div>
+    <div class="value font-bold text-lg">
+        {{ $movimento->nome_envolvido }}
+    </div>
+    
+    {{-- Opcional: Mostrar CNPJ abaixo se disponível no JSON --}}
+    @if($cnpj = data_get($movimento->info, 'detalhes.cCPFCNPJCliente'))
+        <div class="text-sm text-gray-500">
+            {{ $cnpj }}
+        </div>
+    @endif
+</div>
             </div>
 
             <div>

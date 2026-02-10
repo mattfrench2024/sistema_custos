@@ -8,21 +8,24 @@ use App\Models\OmieCliente;
 
 class OmieImportClientes extends Command
 {
-    protected $signature = 'omie:import-clientes {empresa? : gv | sv | vs}';
+    protected $signature = 'omie:import-clientes {empresa? : gv | sv | vs | cs}';
     protected $description = 'Importa clientes da Omie por empresa';
 
     public function handle()
     {
-        $empresa = $this->argument('empresa') ?? 'gv';
+        $empresa = $this->argument('empresa') ?? 'gh';
 
         $map = [
-            'sv' => ['codigo' => '04'],
-            'vs' => ['codigo' => '30'],
-            'gv' => ['codigo' => '36'],
-        ];
+    'sv' => ['codigo' => '04'],
+    'vs' => ['codigo' => '30'],
+    'gv' => ['codigo' => '36'],
+    'cs' => ['codigo' => '10'], // Sistemas Custos
+];
+
 
         if (! isset($map[$empresa])) {
-            $this->error('Empresa inválida. Use: gv | sv | vs');
+            $this->error('Empresa inválida. Use: gv | sv | vs | cs');
+
             return Command::FAILURE;
         }
 

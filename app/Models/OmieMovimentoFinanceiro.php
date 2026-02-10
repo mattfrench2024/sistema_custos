@@ -7,34 +7,75 @@ use Illuminate\Database\Eloquent\Model;
 class OmieMovimentoFinanceiro extends Model
 {
     protected $table = 'omie_movimentos_financeiros';
+
     protected $fillable = [
-        'empresa', 'codigo_movimento', 'codigo_lancamento_omie', 'codigo_titulo',
-        'tipo_movimento', 'origem', 'data_movimento', 'data_competencia',
-        'valor', 'codigo_conta_corrente', 'categorias', 'departamentos', 'info',
-    ];
-    protected $casts = [
-        'data_movimento' => 'date',
-        'data_competencia' => 'date',
-        'valor' => 'decimal:2',
-        'categorias' => 'array',
-        'departamentos' => 'array',
-        'info' => 'array',
+        'empresa',
+        'omie_uid', // ✅ ESSENCIAL
+        'codigo_movimento',
+        'codigo_lancamento_omie',
+        'codigo_titulo',
+        'codigo_conta_corrente',
+        'tipo_movimento',
+        'origem',
+        'data_movimento',
+        'data_competencia',
+        'data_inclusao',
+        'valor',
+        'categorias',
+        'departamentos',
+        'info'
     ];
 
-    // 🔹 Relações
-    public function contaCorrente()
+    protected $casts = [
+        'categorias'    => 'array',
+        'departamentos' => 'array',
+        'info'          => 'array',
+        'valor'         => 'float',
+        'data_movimento'   => 'date',
+        'data_competencia' => 'date',
+    ];
+
+
+
+    // Accessors úteis para seu dashboard
+    public function getNaturezaDescricaoAttribute()
     {
-        return $this->belongsTo(OmieContaCorrente::class, 'codigo_conta_corrente', 'omie_cc_id');
+        return match($this->tipo_movimento) {
+            'R' => 'Receita',
+            'P' => 'Despesa',
+            default => 'Outro'
+        };
     }
 
+
+
+
+    // 🔹 Relações
     public function pagar()
     {
-        return $this->hasOne(OmiePagar::class, 'codigo_lancamento_omie', 'codigo_lancamento_omie');
+        return $this->belongsTo(
+            OmiePagar::class,
+            'codigo_lancamento_omie',
+            'codigo_lancamento_omie'
+        );
     }
 
     public function receber()
     {
-        return $this->hasOne(OmieReceber::class, 'codigo_lancamento_integracao', 'codigo_lancamento_omie');
+        return $this->belongsTo(
+            OmieReceber::class,
+            'codigo_lancamento_omie',
+            'codigo_lancamento_integracao'
+        );
+    }
+
+    public function contaCorrente()
+    {
+        return $this->belongsTo(
+            OmieContaCorrente::class,
+            'codigo_conta_corrente',
+            'omie_cc_id'
+        );
     }
 
     public function categoriasRelacionadas()
@@ -142,5 +183,61 @@ public function scopeContaAReceberGerencial($query)
         'CONTA_A_RECEBER'
     );
 }
-}
+public function getNomeEnvolvidoAttribute(): string
+{
+    // 1️⃣ Tenta relação direta via Conta a Pagar (se houver link no banco)
+    if ($this->isSaidaGerencial() && $this->pagar) {
+        return $this->pagar->fornecedor?->nome_fantasia
+            ?: $this->pagar->fornecedor?->razao_social
+            ?: 'Fornecedor #' . $this->pagar->codigo_cliente_fornecedor;
+    }
 
+    // 2️⃣ Tenta relação direta via Conta a Receber (se houver link no banco)
+    if ($this->isEntradaGerencial() && $this->receber) {
+        return $this->receber->cliente?->nome_fantasia
+            ?: $this->receber->cliente?->razao_social
+            ?: 'Cliente #' . $this->receber->codigo_cliente_fornecedor;
+    }
+
+    // 3️⃣ BUSCA PELO ID NO JSON (A correção principal)
+    // O movimento quase sempre tem o ID do cliente no JSON, mesmo sem link no banco.
+    $codClienteOmie = data_get($this->info, 'detalhes.nCodCliente');
+    
+    if ($codClienteOmie) {
+        $cliente = OmieCliente::where('codigo_cliente_omie', $codClienteOmie)
+            ->where('empresa', $this->empresa) // Importante para multitenancy
+            ->first();
+
+        if ($cliente) {
+            return $cliente->nome_fantasia 
+                ?: $cliente->razao_social 
+                ?: 'Cliente #' . $codClienteOmie;
+        }
+    }
+
+    // 4️⃣ Fallback via CNPJ/CPF no JSON (Último recurso)
+    $cnpjCpf = data_get($this->info, 'detalhes.cCPFCNPJCliente');
+
+    if ($cnpjCpf) {
+        // Remove pontuação para garantir o match se o banco estiver limpo
+        // Se o seu banco salva com pontuação, pode remover o preg_replace
+        $cliente = OmieCliente::where(function($q) use ($cnpjCpf) {
+                $q->where('cnpj_cpf', $cnpjCpf)
+                  ->orWhere('cnpj_cpf', preg_replace('/[^0-9]/', '', $cnpjCpf));
+            })
+            ->where('empresa', $this->empresa)
+            ->first();
+
+        if ($cliente) {
+            return $cliente->nome_fantasia
+                ?: $cliente->razao_social
+                ?: 'Cliente ' . $cnpjCpf;
+        }
+        
+        // Se não achou cliente no banco, retorna o CNPJ formatado para não ficar vazio
+        return $cnpjCpf; 
+    }
+
+    return 'Não identificado';
+}
+}

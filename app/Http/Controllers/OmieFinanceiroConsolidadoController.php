@@ -12,12 +12,14 @@ class OmieFinanceiroConsolidadoController extends Controller
         'vs' => 'Verreschi Soluções',
         'gv' => 'Grupo Verreschi',
         'sv' => 'Sociedade Advogados Verreschi',
+        'cs' => 'Consultoria Soluções',
     ];
 
     protected $empresas = [
         'vs' => '30',
         'gv' => '36',
         'sv' => '04',
+        'cs' => '10',
     ];
 
     /**
@@ -38,7 +40,27 @@ class OmieFinanceiroConsolidadoController extends Controller
         |--------------------------------------------------------------------------
         */
         $baseQuery = OmieMovimentoFinanceiro::empresa($empresaId)
-            ->periodo($request->data_de, $request->data_ate);
+    ->periodo($request->data_de, $request->data_ate)
+
+    // 🔒 Sanidade de dados
+    ->whereNotNull('data_movimento')
+    ->whereDate('data_movimento', '<=', now()->endOfDay())
+
+    // 💰 Apenas movimentos financeiros reais
+    ->where('valor', '!=', 0)
+
+    // 🔹 Apenas gerenciais e conta corrente
+    ->where(function ($q) {
+        $q->contaAReceberGerencial()
+          ->orWhere(function ($q2) {
+              $q2->contaAPagarGerencial();
+          })
+          ->orWhereIn(
+              'info->detalhes->cGrupo',
+              ['CONTA_CORRENTE_REC', 'CONTA_CORRENTE_PAG']
+          );
+    });
+
 
         /*
         |--------------------------------------------------------------------------
@@ -114,18 +136,22 @@ $totalReceber = DB::table('omie_receber')
         |--------------------------------------------------------------------------
         */
         $movimentos = (clone $baseQuery)
-            ->select([
-                'id',
-                'data_movimento',
-                'tipo_movimento',
-                'valor',
-                'codigo_conta_corrente',
-                'categorias',
-                'info',
-            ])
-            ->orderByDesc('data_movimento')
-            ->paginate(30)
-            ->withQueryString();
+    ->select([
+        'id',
+        'data_movimento',
+        'data_inclusao',
+        'tipo_movimento',
+        'valor',
+        'codigo_conta_corrente',
+        'categorias',
+        'info',
+    ])
+    ->orderByDesc('data_movimento')
+    ->orderByDesc('data_inclusao')
+    ->orderByDesc('id')
+    ->paginate(30)
+    ->withQueryString();
+
 
         return view('omie.financeiro-consolidado.index', compact(
             'empresa',

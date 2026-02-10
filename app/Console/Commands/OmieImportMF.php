@@ -4,106 +4,196 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Services\Omie\OmieClient;
-use App\Models\OmieMF;
+use App\Models\OmieMovimentoFinanceiro;
 use Carbon\Carbon;
 use Throwable;
+use Illuminate\Support\Facades\Log;
 
 class OmieImportMF extends Command
 {
-    protected $signature = 'omie:import-mf {empresa? : gv | sv | vs}';
-    protected $description = 'Importa Movimentos Financeiros da Omie com retry e paginação';
+    protected $signature = 'omie:import-mf {empresa? : sv | vs | gv} {--pagina=1}';
+    protected $description = 'Importa TODOS os Movimentos Financeiros da Omie (RAW, seguro e completo)';
 
     public function handle()
     {
         $empresaArg = $this->argument('empresa') ?? 'gv';
 
         $map = [
-            'sv' => ['codigo' => '04'],
-            'vs' => ['codigo' => '30'],
-            'gv' => ['codigo' => '36'],
+            'sv' => '04',
+            'vs' => '30',
+            'gv' => '36',
         ];
 
         if (!isset($map[$empresaArg])) {
-            $this->error('Empresa inválida. Use: gv | sv | vs');
+            $this->error('Empresa inválida. Use: sv, vs ou gv');
             return Command::FAILURE;
         }
 
-        $codigoEmpresa = $map[$empresaArg]['codigo'];
-        $empresaCfg = config("omie.empresas.{$codigoEmpresa}");
+        $empresa = $map[$empresaArg];
+        $cfg = config("omie.empresas.$empresa");
 
-        if (!$empresaCfg) {
-            $this->error('Configuração Omie não encontrada.');
-            return Command::FAILURE;
-        }
+        $omie = new OmieClient($cfg['app_key'], $cfg['app_secret']);
 
-        $omie = new OmieClient($empresaCfg['app_key'], $empresaCfg['app_secret']);
-
-        $pagina = 1;
-        $registrosPorPagina = 500;
+        $pagina       = (int) $this->option('pagina');
+        $porPagina    = 50;
         $totalPaginas = 1;
-        $totalImportados = 0;
 
-        $this->info("🚀 Importando Movimentos Financeiros — {$empresaCfg['label']} ({$codigoEmpresa})");
+        $this->info("🚀 Importando Movimentos Financeiros — Empresa {$empresa}");
+        $this->line("📌 Página inicial: {$pagina}");
 
         do {
-            $tentativa = 0;
-            $maxTentativas = 3;
+            try {
+                $this->line("📄 Página {$pagina} / {$totalPaginas}");
 
-            do {
-                try {
-                    $response = $omie->post(
-                        'financas/mf',
-                        'ListarMovimentos',
-                        [
-                            'mfListarRequest' => [
-                                'nPagina' => $pagina,
-                                'nRegPorPagina' => $registrosPorPagina,
-                            ]
-                        ]
-                    );
+                // ✅ CHAMADA CORRETA — SEM ORDENAÇÃO (MF NÃO SUPORTA)
+                $response = $omie->post(
+                    'financas/mf',
+                    'ListarMovimentos',
+                    [
+                        'mfListarRequest' => [
+                            'nPagina'       => $pagina,
+                            'nRegPorPagina' => $porPagina,
+                        ],
+                    ]
+                );
 
-                    $movimentos = $response['movimentos'] ?? [];
-                    $totalPaginas = $response['nTotPaginas'] ?? 1;
+                $movimentos   = $response['movimentos'] ?? [];
+                $totalPaginas = (int) ($response['nTotPaginas'] ?? 1);
 
-                    foreach ($movimentos as $mov) {
-                        OmieMF::updateOrCreate(
-                            ['cCodIntTitulo' => $mov['cCodIntTitulo'] ?? null],
-                            array_merge($mov, [
-                                'empresa' => $codigoEmpresa,
-                                'dDtEmissao' => !empty($mov['dDtEmissao']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtEmissao']) : null,
-                                'dDtVenc' => !empty($mov['dDtVenc']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtVenc']) : null,
-                                'dDtPrevisao' => !empty($mov['dDtPrevisao']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtPrevisao']) : null,
-                                'dDtPagamento' => !empty($mov['dDtPagamento']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtPagamento']) : null,
-                                'dDtRegistro' => !empty($mov['dDtRegistro']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtRegistro']) : null,
-                                'dDtCredito' => !empty($mov['dDtCredito']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtCredito']) : null,
-                                'dDtConcilia' => !empty($mov['dDtConcilia']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtConcilia']) : null,
-                                'dDtInc' => !empty($mov['dDtInc']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtInc']) : null,
-                                'dDtAlt' => !empty($mov['dDtAlt']) ? Carbon::createFromFormat('d/m/Y', $mov['dDtAlt']) : null,
-                                'payload' => $mov,
-                            ])
-                        );
+                $this->info("📊 Movimentos recebidos da API: " . count($movimentos));
 
-                        $totalImportados++;
+                $inseridos   = 0;
+                $atualizados = 0;
+
+                foreach ($movimentos as $idx => $mov) {
+                    $resultado = $this->importarMovimento($mov, $empresa, $idx + 1);
+
+                    if ($resultado === true) {
+                        $inseridos++;
+                    } else {
+                        $atualizados++;
                     }
-
-                    $this->line("📄 Página {$pagina}/{$totalPaginas} — " . count($movimentos) . " movimentos");
-                    sleep(2);
-                    break;
-
-                } catch (Throwable $e) {
-                    $tentativa++;
-                    $this->warn("⚠️ Tentativa {$tentativa}/{$maxTentativas} falhou: {$e->getMessage()}");
-                    if ($tentativa < $maxTentativas) sleep(5 * $tentativa);
-                    else $this->error("❌ Página {$pagina} ignorada");
                 }
 
-            } while ($tentativa < $maxTentativas);
+                $this->info("✅ Página {$pagina}: {$inseridos} inseridos | {$atualizados} atualizados");
 
-            $pagina++;
+                $pagina++;
+                sleep(1);
+
+            } catch (Throwable $e) {
+                $this->error("❌ Erro na página {$pagina}: {$e->getMessage()}");
+
+                Log::error('Erro importação MF', [
+                    'empresa' => $empresa,
+                    'pagina'  => $pagina,
+                    'erro'    => $e->getMessage(),
+                ]);
+
+                $this->line("➡️ Para continuar:");
+                $this->line("php artisan omie:import-mf {$empresaArg} --pagina={$pagina}");
+
+                return Command::FAILURE;
+            }
 
         } while ($pagina <= $totalPaginas);
 
-        $this->info("🎯 Importação concluída — Total: {$totalImportados} movimentos");
+        $this->info("🏁 Importação FINALIZADA com sucesso");
         return Command::SUCCESS;
+    }
+
+    /**
+     * Importa um movimento individual
+     * Retorna TRUE se inseriu | FALSE se atualizou
+     */
+    private function importarMovimento(array $mov, string $empresa, int $linha): bool
+    {
+        $det = $mov['detalhes'] ?? [];
+        $res = $mov['resumo']   ?? [];
+
+        $omieUid = $this->gerarOmieUID($mov, $empresa);
+
+        if (empty($omieUid)) {
+            $this->error("❌ UID vazio na linha {$linha}");
+            Log::warning('UID vazio', compact('mov'));
+            return false;
+        }
+
+        $valor = (float) (
+            $res['nValLiquido']
+            ?? $det['nValorMovCC']
+            ?? $det['nValorTitulo']
+            ?? 0
+        );
+
+        $registroExiste = OmieMovimentoFinanceiro::where([
+            'empresa'  => $empresa,
+            'omie_uid' => $omieUid,
+        ])->exists();
+
+        OmieMovimentoFinanceiro::updateOrCreate(
+            [
+                'empresa'  => $empresa,
+                'omie_uid' => $omieUid,
+            ],
+            [
+                'codigo_movimento'       => $det['nCodLancamento'] ?? $det['nCodTitulo'] ?? 'N/A',
+                'codigo_lancamento_omie' => $det['nCodLancamento'] ?? null,
+                'codigo_titulo'          => $det['nCodTitulo'] ?? null,
+                'codigo_conta_corrente'  => $det['nCodCC'] ?? null,
+                'tipo_movimento'         => $det['cNatureza'] ?? $det['cTipo'] ?? null,
+                'origem'                 => $det['cOrigem'] ?? null,
+                'data_movimento'         => $this->dt(
+                    $det['dDtPagamento']
+                    ?? $det['dDtEmissao']
+                    ?? $det['dDtRegistro']
+                    ?? null
+                ),
+                'data_competencia' => $this->dt($det['dDtVenc'] ?? null),
+                'data_inclusao'    => now(),
+                'valor'            => $valor,
+                'categorias'       => $mov['categorias'] ?? [],
+                'departamentos'    => $mov['departamentos'] ?? [],
+                'info'             => $mov,
+            ]
+        );
+
+        $this->line(
+            ($registroExiste ? '♻️ Atualizado' : '➕ Inserido')
+            . " | UID={$omieUid} | Valor={$valor}"
+        );
+
+        return !$registroExiste;
+    }
+
+    /**
+     * UID IMUNE A COLISÃO
+     */
+    private function gerarOmieUID(array $mov, string $empresa): string
+    {
+        $det = $mov['detalhes'] ?? [];
+
+        return implode('|', [
+            'EMP:' . $empresa,
+            'TIT:' . ($det['nCodTitulo']     ?? 'X'),
+            'LAN:' . ($det['nCodLancamento'] ?? 'X'),
+            'OS:'  . ($det['nCodOS']         ?? 'X'),
+            'CC:'  . ($det['nCodCC']         ?? 'X'),
+            'ORG:' . ($det['cOrigem']        ?? 'X'),
+            'REG:' . ($det['dDtRegistro']    ?? 'X'),
+            'PAR:' . ($det['cNumParcela']    ?? 'X'),
+        ]);
+    }
+
+    private function dt($date)
+    {
+        if (!$date) return null;
+
+        try {
+            return str_contains($date, '/')
+                ? Carbon::createFromFormat('d/m/Y', substr($date, 0, 10))->format('Y-m-d')
+                : Carbon::parse(substr($date, 0, 10))->format('Y-m-d');
+        } catch (Throwable) {
+            return null;
+        }
     }
 }

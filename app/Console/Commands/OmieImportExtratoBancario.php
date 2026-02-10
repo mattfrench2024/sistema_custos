@@ -22,10 +22,12 @@ class OmieImportExtratoBancario extends Command
     public function handle(): int
     {
         $map = [
-            'sv' => ['codigo' => '04'],
-            'vs' => ['codigo' => '30'],
-            'gv' => ['codigo' => '36'],
-        ];
+    'sv' => ['codigo' => '04'],
+    'vs' => ['codigo' => '30'],
+    'gv' => ['codigo' => '36'],
+    'cs' => ['codigo' => '10'], // Sistemas Custos
+];
+
 
         $empresaArg = $this->argument('empresa');
 

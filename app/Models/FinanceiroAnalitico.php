@@ -19,6 +19,7 @@ class FinanceiroAnalitico extends Model
             '04' => 'S. Verreschi Advogados',
             '30' => 'Verreschi Soluções',
             '36' => 'Grupo Verreschi',
+            '10' => 'Consultoria Soluções',
         ];
     }
     public static function empresasSlugMap()
@@ -27,6 +28,7 @@ class FinanceiroAnalitico extends Model
         'sverreschi' => '04',
         'verreschi'  => '30',
         'grupo'      => '36',
+        'consultoria'=> '10',
     ];
 }
 
@@ -45,8 +47,9 @@ private static function receberBase($ano, $mes = null, $empresa = null)
         ->whereYear('base.data_vencimento', $ano)
         ->when($mes, fn ($q) => $q->whereMonth('base.data_vencimento', $mes))
         ->when($empresa, fn ($q) => $q->where('base.empresa', $empresa))
-->where('base.status', '=', 'RECEBIDO');
+        ->whereRaw('UPPER(base.status) = "RECEBIDO"');
 }
+
 
 private static function pagarBase($ano, $mes = null, $empresa = null)
 {

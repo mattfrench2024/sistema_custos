@@ -20,13 +20,16 @@ class OmieImportOrcamentos extends Command
         $mes = $this->option('mes') ?? date('m');
 
         $map = [
-            'sv' => ['codigo' => '04'],
-            'vs' => ['codigo' => '30'],
-            'gv' => ['codigo' => '36'],
-        ];
+    'sv' => ['codigo' => '04'],
+    'vs' => ['codigo' => '30'],
+    'gv' => ['codigo' => '36'],
+    'cs' => ['codigo' => '10'], // Sistemas Custos
+];
+
 
         if (!isset($map[$empresaArg])) {
-            $this->error('Empresa inválida. Use: gv | sv | vs');
+            $this->error('Empresa inválida. Use: gv | sv | vs | cs');
+
             return Command::FAILURE;
         }
 

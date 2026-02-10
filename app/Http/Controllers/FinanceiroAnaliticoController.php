@@ -39,6 +39,7 @@ class FinanceiroAnaliticoController extends Controller
         'vs' => ['codigo' => '30', 'nome' => 'Verreschi Soluções'],
         'gv' => ['codigo' => '36', 'nome' => 'Grupo Verreschi'],
         'sv' => ['codigo' => '04', 'nome' => 'Sociedade Advogados Verreschi'],
+        'cs' => ['codigo' => '10', 'nome' => 'Consultoria Soluções'],
     ];
 
     if (!isset($empresaMap[$empresa])) {
@@ -167,9 +168,5 @@ class FinanceiroAnaliticoController extends Controller
         'concentracaoClientes'
     ));
 }
-
-
-
-
 
 }

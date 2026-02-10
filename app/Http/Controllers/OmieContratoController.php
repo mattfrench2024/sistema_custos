@@ -11,6 +11,7 @@ class OmieContratoController extends Controller
         'sv' => ['codigo' => '04', 'label' => 'S. Verreschi Advogados'],
         'vs' => ['codigo' => '30', 'label' => 'Verreschi Soluções'],
         'gv' => ['codigo' => '36', 'label' => 'Grupo Verreschi'],
+        'cs' => ['codigo' => '10', 'label' => 'Consultoria Soluções'],
     ];
 
     /**

@@ -12,11 +12,13 @@ protected $empresaNomes = [
     'vs' => 'Verreschi Soluções',
     'gv' => 'Grupo Verreschi',
     'sv' => 'Sociedade Advogados Verreschi',
+    'cs' => 'Consultoria Soluções',
 ];
 protected $empresas = [
     'vs' => '30',
     'gv' => '36',
     'sv' => '04',
+    'cs' => '10',
 ];
 
 
@@ -33,13 +35,14 @@ public function index(Request $request, $empresa)
     $ano = $request->get('ano');
 
     $query = OmieReceber::with([
-        'cliente' => fn($q) => $q->where('empresa', $empresaId),
-        'categoria' => fn($q) => $q->where('empresa', $empresaId),
-    ])
-    ->where('empresa', $empresaId);
+            'cliente'   => fn ($q) => $q->where('empresa', $empresaId),
+            'categoria' => fn ($q) => $q->where('empresa', $empresaId),
+        ])
+        ->where('empresa', $empresaId)
+        ->whereNotNull('data_vencimento');
 
     // Filtro por mês e ano
-    if($mes && $ano){
+    if ($mes && $ano) {
         $query->whereYear('data_vencimento', $ano)
               ->whereMonth('data_vencimento', $mes);
     } elseif ($ano) {
@@ -48,9 +51,11 @@ public function index(Request $request, $empresa)
         $query->whereMonth('data_vencimento', $mes);
     }
 
-    $receber = $query->orderByDesc('data_vencimento')
-                     ->paginate(25)
-                     ->withQueryString();
+    // 🔥 Ordenação por proximidade da data atual
+    $receber = $query
+        ->orderByRaw('ABS(DATEDIFF(data_vencimento, CURDATE()))')
+        ->paginate(25)
+        ->withQueryString();
 
     return view('omie.receber.index', compact(
         'receber',
@@ -58,6 +63,7 @@ public function index(Request $request, $empresa)
         'empresaNome'
     ));
 }
+
 
 
 

@@ -13,6 +13,7 @@ class OmieEmpresaMiddleware
             'sv' => '04',
             'vs' => '30',
             'gv' => '36',
+            'cs' => '10',
         ];
 
         $empresaSlug = $request->route('empresa');

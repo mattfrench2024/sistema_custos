@@ -38,14 +38,17 @@ class OmiePagar extends Model
     /**
      * Route Model Binding
      */
-    public function getRouteKeyName(): string
-    {
-        return 'codigo_lancamento_omie';
-    }
-public function movimentoFinanceiro()
-    {
-        return $this->belongsTo(OmieMovimentoFinanceiro::class, 'codigo_lancamento_omie', 'codigo_lancamento_omie');
-    }
+   
+// OmiePagar.php
+public function movimentosFinanceiros()
+{
+    return $this->hasMany(
+        OmieMovimentoFinanceiro::class,
+        'codigo_lancamento_omie',
+        'codigo_lancamento_omie'
+    );
+}
+
     /* =====================================================
      | RELACIONAMENTOS
      ===================================================== */
@@ -107,4 +110,19 @@ public function categoria()
     // Apenas o join pelo código da categoria
     return $this->belongsTo(OmieCategoria::class, 'codigo_categoria', 'codigo');
 }
+public function getTotalPagoAttribute(): float
+{
+    return $this->movimentosFinanceiros
+        ->where('tipo', 'D') // débito
+        ->sum('valor');
+}
+
+public function getSaldoAbertoAttribute(): float
+{
+    return max(
+        $this->valor_documento - $this->total_pago,
+        0
+    );
+}
+
 }

@@ -9,7 +9,7 @@ use Throwable;
 
 class OmieImportBoletos extends Command
 {
-    protected $signature = 'omie:import-boletos {empresa? : gv | sv | vs}';
+    protected $signature = 'omie:import-boletos {empresa? : gv | sv | vs | cs}';
     protected $description = 'Importa boletos de Contas a Receber da Omie';
 
     public function handle()
@@ -17,13 +17,16 @@ class OmieImportBoletos extends Command
         $empresaArg = $this->argument('empresa') ?? 'gv';
 
         $map = [
-            'sv' => ['codigo' => '04'],
-            'vs' => ['codigo' => '30'],
-            'gv' => ['codigo' => '36'],
-        ];
+    'sv' => ['codigo' => '04'],
+    'vs' => ['codigo' => '30'],
+    'gv' => ['codigo' => '36'],
+    'cs' => ['codigo' => '10'], // Sistemas Custos
+];
+
 
         if (!isset($map[$empresaArg])) {
-            $this->error('Empresa inválida. Use: gv | sv | vs');
+            $this->error('Empresa inválida. Use: gv | sv | vs | cs');
+
             return Command::FAILURE;
         }
 

@@ -90,11 +90,16 @@
             <h1 class="text-2xl font-semibold text-[var(--text-primary)] tracking-tight">
                 Contas a Pagar
             </h1>
+
             <p class="mt-1 text-sm text-[var(--text-secondary)]">
-Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</span>
+                Empresa
+                <span class="font-medium text-gray-700">
+                    {{ strtoupper($empresaSlug) }}
+                </span>
             </p>
         </div>
     </div>
+
 <form method="GET" class="flex items-center gap-4 mb-4">
     <input type="hidden" name="empresa_codigo" value="{{ $empresaCodigo }}">
     <input type="hidden" name="empresa_slug" value="{{ $empresaSlug }}">
@@ -122,10 +127,11 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
         </select>
     </div>
 </form>
+
 <form method="GET" class="mb-4 flex flex-wrap gap-2 items-end">
     <input type="hidden" name="empresa_codigo" value="{{ $empresaCodigo }}">
     <input type="hidden" name="empresa_slug" value="{{ $empresaSlug }}">
-    
+
     <div>
         <label class="block text-gray-700 text-xs font-semibold">Mês</label>
         <select name="mes" class="form-select">
@@ -143,15 +149,19 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
         <select name="ano" class="form-select">
             <option value="">Todos</option>
             @for($y = now()->year-5; $y <= now()->year+1; $y++)
-                <option value="{{ $y }}" @if(request('ano') == $y) selected @endif>{{ $y }}</option>
+                <option value="{{ $y }}" @if(request('ano') == $y) selected @endif>
+                    {{ $y }}
+                </option>
             @endfor
         </select>
     </div>
 
-    <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+    <button type="submit"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
         Filtrar
     </button>
 </form>
+
 
     {{-- Tabela --}}
     <div class="card overflow-x-auto">
@@ -159,9 +169,9 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
     <thead class="table-header text-[0.65rem] uppercase tracking-widest text-gray-500">
         <tr>
             <th class="px-5 py-4 text-left font-semibold">Fornecedor</th>
-            <th class="px-5 py-4 text-center font-semibold">Vencimento</th>
-            <th class="px-5 py-4 text-right font-semibold">Valor</th>
             <th class="px-5 py-4 text-center font-semibold">Categoria</th>
+            <th class="px-5 py-4 text-right font-semibold">Valor</th>
+            <th class="px-5 py-4 text-center font-semibold">Vencimento</th>
             <th class="px-5 py-4 text-center font-semibold">Status</th>
             <th class="px-5 py-4 text-center font-semibold">Ações</th>
             <th class="px-5 py-4 text-center font-semibold">Tipo</th>
@@ -179,16 +189,6 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
                     @else
                         <span class="text-gray-400 italic">—</span>
                     @endif
-                </td>            
-
-                {{-- Vencimento --}}
-                <td class="px-5 py-4 text-center text-gray-600">
-                    {{ optional($conta->data_vencimento)->format('d/m/Y') ?? '—' }}
-                </td>
-
-                {{-- Valor --}}
-                <td class="px-5 py-4 text-right font-semibold text-gray-900">
-                    R$ {{ number_format($conta->valor_documento, 2, ',', '.') }}
                 </td>
 
                 {{-- Categoria --}}
@@ -198,6 +198,16 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
                     @else
                         <span class="text-gray-400 italic">Não definida</span>
                     @endif
+                </td>
+
+                {{-- Valor --}}
+                <td class="px-5 py-4 text-right font-semibold text-gray-900">
+                    R$ {{ number_format($conta->valor_documento, 2, ',', '.') }}
+                </td>
+
+                {{-- Vencimento --}}
+                <td class="px-5 py-4 text-center text-gray-600">
+                    {{ optional($conta->data_vencimento)->format('d/m/Y') ?? '—' }}
                 </td>
 
                 {{-- Status --}}
@@ -223,28 +233,43 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
 
                     {{-- Ver detalhes --}}
                     <a
-    href="{{ route('omie.pagar.show', [
-        'empresa' => $empresaSlug,
-        'pagar'   => $conta->codigo_lancamento_omie
-    ]) }}"
-    class="action-link block"
->
-    Ver detalhes
-</a>
+                        href="{{ route('omie.pagar.show', [
+                            'empresa' => $empresaSlug,
+                            'pagar'   => $conta->id
+                        ]) }}"
+                        class="action-link block"
+                    >
+                        Ver detalhes
+                    </a>
 
+                    {{-- Registrar pagamento (MOVIMENTO FINANCEIRO) --}}
+                    @if($conta->status_titulo !== 'PAGO' && $conta->status_titulo !== 'CANCELADO')
+                        <a
+                            href="{{ route('omie.movimentos.create', [
+                                'empresa' => $empresaSlug,
+                                'origem'  => 'pagar',
+                                'id'      => $conta->id
+                            ]) }}"
+                            class="inline-block text-[0.65rem] font-semibold
+                                   px-3 py-1 rounded-full
+                                   bg-green-100 text-green-700
+                                   hover:bg-green-200 transition"
+                        >
+                            Registrar pagamento
+                        </a>
+                    @endif
 
                     {{-- Toggle de status --}}
                     @if($conta->status_titulo !== 'CANCELADO')
                         <form
-    action="{{ route('omie.pagar.toggle-status', [
-        'empresa' => $empresaSlug,
-'pagar' => $conta->codigo_lancamento_omie
-    ]) }}"
-    method="POST"
->
-    @csrf
-    @method('PATCH')
-
+                            action="{{ route('omie.pagar.toggle-status', [
+                                'empresa' => $empresaSlug,
+                                'pagar'   => $conta->id
+                            ]) }}"
+                            method="POST"
+                        >
+                            @csrf
+                            @method('PATCH')
 
                             <button
                                 type="submit"
@@ -254,7 +279,7 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
                                     @if($conta->status_titulo === 'PAGO')
                                         bg-gray-100 text-gray-600 hover:bg-yellow-100 hover:text-yellow-700
                                     @else
-                                        bg-green-100 text-green-700 hover:bg-green-200
+                                        bg-blue-100 text-blue-700 hover:bg-blue-200
                                     @endif
                                 "
                             >
@@ -276,13 +301,14 @@ Empresa <span class="font-medium text-gray-700">{{ strtoupper($empresaSlug) }}</
             </tr>
         @empty
             <tr>
-                <td colspan="8" class="px-5 py-8 text-center text-gray-400 italic">
+                <td colspan="7" class="px-5 py-8 text-center text-gray-400 italic">
                     Nenhuma conta encontrada para os filtros selecionados.
                 </td>
             </tr>
         @endforelse
     </tbody>
 </table>
+
 
 
     </div>

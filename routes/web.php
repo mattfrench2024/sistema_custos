@@ -32,6 +32,7 @@ use App\Http\Controllers\OmieServicoController;
 use App\Http\Controllers\OmieResumoFinancasController;
 use App\Http\Controllers\OmieEmpresaController;
 use App\Http\Controllers\OmieFinanceiroConsolidadoController;
+use App\Http\Controllers\OmieNotaFiscalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -258,11 +259,38 @@ Route::get('/receber/{receber}', [OmieReceberController::class, 'show'])
          * MOVIMENTOS FINANCEIROS
          * ============================
          */
-        Route::get('/movimentos-financeiros', [OmieMovimentoFinanceiroController::class, 'index'])
-            ->name('movimentos.index');
 
-        Route::get('/movimentos-financeiros/{movimento}', [OmieMovimentoFinanceiroController::class, 'show'])
-            ->name('movimentos.show');
+        Route::get('/movimentos-financeiros/create', 
+            [OmieMovimentoFinanceiroController::class, 'create']
+        )->name('movimentos.create');
+
+        Route::get('/movimentos-financeiros', 
+            [OmieMovimentoFinanceiroController::class, 'index']
+        )->name('movimentos.index');
+
+        Route::get('/movimentos-financeiros/{movimento}', 
+            [OmieMovimentoFinanceiroController::class, 'show']
+        )->name('movimentos.show');
+
+        Route::post('/movimentos-financeiros', 
+            [OmieMovimentoFinanceiroController::class, 'store']
+        )->name('movimentos.store');
+
+/**
+ * ============================
+ * NOTAS FISCAIS
+ * ============================
+ */
+       Route::get('notas-fiscais', [OmieNotaFiscalController::class, 'index'])
+            ->name('notas.index');
+
+        Route::post('notas-fiscais/{nota}/pdf', [OmieNotaFiscalController::class, 'gerarPdf'])
+            ->name('notas.pdf');
+Route::get(
+    'notas-fiscais/{nota}/pdf',
+    [OmieNotaFiscalController::class, 'verPdf']
+)->name('notas.pdf.ver');
+
 
         /**
          * ============================

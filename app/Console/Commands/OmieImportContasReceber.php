@@ -10,7 +10,7 @@ use Throwable;
 
 class OmieImportContasReceber extends Command
 {
-    protected $signature = 'omie:import-receber {empresa? : sv | vs | gv} {--pagina=1}';
+    protected $signature = 'omie:import-receber {empresa? : sv | vs | gv | cs} {--pagina=1}';
     protected $description = 'Importa contas a receber da Omie por empresa';
 
     public function handle()
@@ -21,6 +21,7 @@ class OmieImportContasReceber extends Command
             'sv' => ['codigo' => '04'],
             'vs' => ['codigo' => '30'],
             'gv' => ['codigo' => '36'],
+            'cs' => ['codigo' => '10'], // Sistemas Custos
         ];
 
         if (!isset($map[$empresaArg])) {

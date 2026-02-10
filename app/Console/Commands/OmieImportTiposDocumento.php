@@ -21,10 +21,11 @@ class OmieImportTiposDocumento extends Command
             'sv' => '04',
             'vs' => '30',
             'gv' => '36',
+            'cs' => '10', 
         ];
 
         if (! isset($map[$empresaSlug])) {
-            $this->error('Empresa inválida. Use: sv | vs | gv');
+            $this->error('Empresa inválida. Use: sv | vs | gv | cs');
             return Command::FAILURE;
         }
 

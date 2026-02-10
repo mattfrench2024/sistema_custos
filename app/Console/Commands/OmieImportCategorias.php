@@ -17,10 +17,12 @@ class OmieImportCategorias extends Command
         $empresaArg = $this->argument('empresa') ?? 'gv';
 
         $map = [
-            'sv' => ['codigo' => '04'],
-            'vs' => ['codigo' => '30'],
-            'gv' => ['codigo' => '36'],
-        ];
+    'sv' => ['codigo' => '04'],
+    'vs' => ['codigo' => '30'],
+    'gv' => ['codigo' => '36'],
+    'cs' => ['codigo' => '10'], // Sistemas Custos
+];
+
 
         if (!isset($map[$empresaArg])) {
             $this->error('Empresa inválida.');

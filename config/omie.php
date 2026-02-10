@@ -1,6 +1,5 @@
 <?php
 
-
 return [
 
     'empresas' => [
@@ -23,7 +22,12 @@ return [
             'app_secret' => env('OMIE_36_SECRET'),
         ],
 
+        '10' => [
+            'label' => 'Sistemas Custos',
+            'app_key' => env('OMIE_10_KEY'),
+            'app_secret' => env('OMIE_10_SECRET'),
+        ],
+
     ],
 
 ];
-

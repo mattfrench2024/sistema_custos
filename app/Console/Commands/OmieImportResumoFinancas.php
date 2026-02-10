@@ -11,7 +11,7 @@ use Throwable;
 class OmieImportResumoFinancas extends Command
 {
     protected $signature = 'omie:import-resumo-financas 
-                            {empresa? : gv | sv | vs} 
+                            {empresa? : gv | sv | vs | cs} 
                             {data? : Data no formato d/m/Y}';
 
     protected $description = 'Importa o Resumo de Finanças da Omie (snapshot diário)';
@@ -22,13 +22,16 @@ class OmieImportResumoFinancas extends Command
         $dataArg    = $this->argument('data') ?? now()->format('d/m/Y');
 
         $map = [
-            'sv' => ['codigo' => '04'],
-            'vs' => ['codigo' => '30'],
-            'gv' => ['codigo' => '36'],
-        ];
+    'sv' => ['codigo' => '04'],
+    'vs' => ['codigo' => '30'],
+    'gv' => ['codigo' => '36'],
+    'cs' => ['codigo' => '10'], // Sistemas Custos
+];
+
 
         if (!isset($map[$empresaArg])) {
-            $this->error('Empresa inválida. Use: gv | sv | vs');
+            $this->error('Empresa inválida. Use: gv | sv | vs | cs');
+
             return Command::FAILURE;
         }
 

@@ -167,8 +167,8 @@ tbody td {
 </style>
 
 <div class="max-w-7xl mx-auto px-6 py-8 space-y-6">
-
-    {{-- Header --}}
+{{-- Header --}}
+<div class="flex items-center justify-between mb-6">
     <div>
         <h1 class="text-3xl">
             Contas a Receber
@@ -177,14 +177,19 @@ tbody td {
             </span>
         </h1>
     </div>
+</div>
+
+{{-- Filtros --}}
 <form method="GET" class="mb-4 flex flex-wrap gap-2 items-end">
+    <input type="hidden" name="empresa" value="{{ $empresa }}">
+
     <div>
         <label class="block text-gray-700 text-xs font-semibold">Mês</label>
         <select name="mes" class="form-select">
             <option value="">Todos</option>
-            @for($m=1; $m<=12; $m++)
-                <option value="{{ $m }}" @if(request('mes') == $m) selected @endif>
-                    {{ str_pad($m,2,'0',STR_PAD_LEFT) }}
+            @for($m = 1; $m <= 12; $m++)
+                <option value="{{ $m }}" @selected(request('mes') == $m)>
+                    {{ str_pad($m, 2, '0', STR_PAD_LEFT) }}
                 </option>
             @endfor
         </select>
@@ -194,85 +199,108 @@ tbody td {
         <label class="block text-gray-700 text-xs font-semibold">Ano</label>
         <select name="ano" class="form-select">
             <option value="">Todos</option>
-            @for($y = now()->year-5; $y <= now()->year+1; $y++)
-                <option value="{{ $y }}" @if(request('ano') == $y) selected @endif>{{ $y }}</option>
+            @for($y = now()->year - 5; $y <= now()->year + 1; $y++)
+                <option value="{{ $y }}" @selected(request('ano') == $y)>
+                    {{ $y }}
+                </option>
             @endfor
         </select>
     </div>
 
-    <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+    <button type="submit"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
         Filtrar
     </button>
 </form>
 
-    {{-- Table --}}
-    <div class="table-container">
+{{-- Table --}}
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Vencimento</th>
+                <th>Valor</th>
+                <th>Categoria</th>
+                <th>Status</th>
+                <th class="text-center">Ações</th>
+            </tr>
+        </thead>
 
-        <table>
-            <thead>
+        <tbody>
+            @forelse ($receber as $item)
                 <tr>
-                    <th>Cliente</th>
-                    <th>Vencimento</th>
-                    <th>Valor</th>
-                    <th>Categoria</th>
-                    <th>Status</th>
-                    <th class="text-center">Ações</th>
+
+                    {{-- Cliente --}}
+                    <td data-label="Cliente">
+                        {{ $item->nome_cliente }}
+                    </td>
+
+                    {{-- Vencimento --}}
+                    <td data-label="Vencimento">
+                        {{ $item->data_vencimento?->format('d/m/Y') ?? '—' }}
+                    </td>
+
+                    {{-- Valor --}}
+                    <td data-label="Valor">
+                        R$ {{ number_format($item->valor_documento, 2, ',', '.') }}
+                    </td>
+
+                    {{-- Categoria --}}
+                    <td data-label="Categoria">
+                        @if($item->categoria)
+                            {{ $item->categoria->descricao }}
+                        @else
+                            <span class="text-gray-400 italic">Não definida</span>
+                        @endif
+                    </td>
+
+                    {{-- Status --}}
+                    <td data-label="Status">
+                       <span class="badge {{ $item->statusColor() }}">
+    {{ $item->status_calculado }}
+</span>
+                    </td>
+
+                    {{-- Ações --}}
+                    <td data-label="Ações" class="text-center space-y-1">
+
+                        {{-- Ver detalhes --}}
+                        <a
+                            href="{{ route('omie.receber.show', [
+                                'empresa' => $empresa,
+                                'receber' => $item->id
+                            ]) }}"
+                            class="action-link block"
+                        >
+                            Ver detalhes
+                        </a>
+
+                        {{-- Registrar recebimento --}}
+                        <a
+                            href="{{ route('omie.movimentos.create', [
+                                'empresa' => $empresa,
+                                'origem'  => 'receber',
+                                'id'      => $item->id
+                            ]) }}"
+                            class="action-link text-green-600 block"
+                        >
+                            Registrar recebimento
+                        </a>
+
+                    </td>
                 </tr>
-            </thead>
+            @empty
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        Nenhuma conta encontrada para este período.
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 
-            <tbody>
-                @forelse ($receber as $item)
-                   
-
-                    <tr>
-
-
-                        <td data-label="Cliente">
-    {{ $item->nome_cliente }}
-</td>
-
-                        <td data-label="Vencimento">
-                            {{ $item->data_vencimento?->format('d/m/Y') }}
-                        </td>
-
-                        <td data-label="Valor">
-                            R$ {{ number_format($item->valor_documento, 2, ',', '.') }}
-                        </td>
-                        <td data-label="Categoria">
-    @if($item->categoria)
-        {{ $item->categoria->descricao }}
-    @else
-        <span class="text-gray-400 italic">Não definida</span>
-    @endif
-</td>
-
-
-                        <td data-label="Status">
-                            <span class="badge {{ $item->statusColor() }}">
-                                {{ $item->status_calculado }}
-                            </span>
-
-                        </td>
-
-                        <td data-label="Ações" class="text-center">
-                            <a
-    href="{{ route('omie.receber.show', ['empresa' => $empresa, 'receber' => $item]) }}"
-    class="action-link"
->
-    Ver →
-</a>
-
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            Nenhuma conta encontrada para este período.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
 
         <div class="pagination">
             {{ $receber->links() }}

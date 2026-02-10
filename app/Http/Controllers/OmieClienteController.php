@@ -12,12 +12,14 @@ class OmieClienteController extends Controller
     'sv' => '04',
     'vs' => '30',
     'gv' => '36',
+    'cs' => '10',
 ];
 
 protected $empresaNomes = [
     'sv' => 'Sociedade Advogados Verreschi',
     'vs' => 'Verreschi Soluções',
     'gv' => 'Grupo Verreschi',
+    'cs' => 'Consultoria Soluções',
 ];
 
 public function index(string $empresa, Request $request)

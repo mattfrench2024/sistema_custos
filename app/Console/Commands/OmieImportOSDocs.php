@@ -10,7 +10,7 @@ use Throwable;
 class OmieImportOSDocs extends Command
 {
     protected $signature = 'omie:import-osdocs 
-        {empresa : gv | sv | vs}
+        {empresa : gv | sv | vs | cs}
         {metodo  : ObterOS | ObterNFSe | ObterRecibo | ObterViaUnica}
         {id      : ID do documento na Omie}';
 
@@ -26,6 +26,7 @@ class OmieImportOSDocs extends Command
             'sv' => '04',
             'vs' => '30',
             'gv' => '36',
+            'cs' => '10',
         ];
 
         if (!isset($empresas[$empresaArg])) {

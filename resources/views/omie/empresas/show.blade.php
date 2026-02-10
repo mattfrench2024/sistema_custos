@@ -228,25 +228,7 @@ ul li:hover {
         @endforelse
     </ul>
 
-    <!-- Clientes -->
-    <h2 class="section-title">Clientes</h2>
-    <ul class="list-card">
-        @forelse($empresaModel->clientes as $cliente)
-            <li>{{ $cliente->razao_social }}</li>
-        @empty
-            <li>Não há clientes cadastrados.</li>
-        @endforelse
-    </ul>
-
-    <!-- Categorias -->
-    <h2 class="section-title">Categorias</h2>
-    <ul class="list-card">
-        @forelse($empresaModel->categorias as $categoria)
-            <li>{{ $categoria->descricao }}</li>
-        @empty
-            <li>Não há categorias cadastradas.</li>
-        @endforelse
-    </ul>
+   
 
     <a href="{{ route('omie.empresas.index', $empresa) }}" class="back-btn">Voltar para lista</a>
 

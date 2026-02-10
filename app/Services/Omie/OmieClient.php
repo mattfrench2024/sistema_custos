@@ -13,26 +13,44 @@ class OmieClient
         protected string $appKey,
         protected string $appSecret
     ) {}
-    public function post(string $modulo, string $metodo, array $param = []): array
+    // app/Services/Omie/OmieClient.php
+
+public function post(string $modulo, string $metodo, array $param = []): array
 {
     $url = "{$this->endpoint}/{$modulo}/";
 
     $response = Http::withOptions([
-            'verify' => false,
-        ])
+        'verify' => false,
+    ])
         ->timeout(60)
         ->post($url, [
-            'call' => $metodo,
-            'app_key' => $this->appKey,
+            'call'       => $metodo,
+            'app_key'    => $this->appKey,
             'app_secret' => $this->appSecret,
-            'param' => [$param],
+            'param'      => [$param],
         ]);
 
-    if (! $response->successful()) {
-        throw new Exception('Erro HTTP Omie: ' . $response->status());
+    $json = $response->json();
+
+    /**
+     * 🔥 TRATAMENTO ESPECIAL DA OMIE
+     * Página sem registros NÃO é erro
+     */
+    if (
+        isset($json['faultcode']) &&
+        $json['faultcode'] === 'SOAP-ENV:Client-5113'
+    ) {
+        return [
+            'documentosEncontrados' => [],
+            'total_de_registros' => 0,
+        ];
     }
 
-    $json = $response->json();
+    if (! $response->successful()) {
+        throw new Exception(
+            'Erro HTTP Omie: ' . $response->status() . ' - ' . $response->body()
+        );
+    }
 
     if (isset($json['faultstring'])) {
         throw new Exception('Erro Omie: ' . $json['faultstring']);
@@ -40,6 +58,8 @@ class OmieClient
 
     return $json;
 }
+
+
 
 
     public function listarClientes(int $pagina, int $porPagina = 50): array

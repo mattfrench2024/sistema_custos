@@ -225,6 +225,11 @@ body {
                    class="sidebar-link {{ request()->is('financeiro/analitico/empresa/gv*') ? 'active' : '' }}">
                     🏢 Grupo (GV)
                 </a>
+
+                <a href="/financeiro/analitico/empresa/cs"
+                   class="sidebar-link {{ request()->is('financeiro/analitico/empresa/cs*') ? 'active' : '' }}">
+                    🧠 Consultoria (CS)
+                </a>
             </div>
 
             {{-- OMIE --}}
@@ -236,211 +241,154 @@ body {
                     <p class="text-xs text-[var(--muted)] mb-1">Resumo Financeiro</p>
 
                     <a href="/omie/sv/resumo-financas"
-                       class="sidebar-sub {{ request()->is('omie/sv/resumo-financas*') ? 'active' : '' }}">
-                        SV
-                    </a>
+                       class="sidebar-sub {{ request()->is('omie/sv/resumo-financas*') ? 'active' : '' }}">SV</a>
 
                     <a href="/omie/vs/resumo-financas"
-                       class="sidebar-sub {{ request()->is('omie/vs/resumo-financas*') ? 'active' : '' }}">
-                        VS
-                    </a>
+                       class="sidebar-sub {{ request()->is('omie/vs/resumo-financas*') ? 'active' : '' }}">VS</a>
 
                     <a href="/omie/gv/resumo-financas"
-                       class="sidebar-sub {{ request()->is('omie/gv/resumo-financas*') ? 'active' : '' }}">
-                        GV
-                    </a>
+                       class="sidebar-sub {{ request()->is('omie/gv/resumo-financas*') ? 'active' : '' }}">GV</a>
+
+                    <a href="/omie/cs/resumo-financas"
+                       class="sidebar-sub {{ request()->is('omie/cs/resumo-financas*') ? 'active' : '' }}">CS</a>
                 </div>
-                {{-- FINANCEIRO CONSOLIDADO --}}
-<div class="space-y-1 mt-4">
-    <p class="text-xs text-[var(--muted)] mb-1">Projeções</p>
 
-    <a href="/omie/sv/financeiro-consolidado"
-       class="sidebar-sub {{ request()->is('omie/sv/financeiro-consolidado*') ? 'active' : '' }}">
-        SV
-    </a>
+                {{-- PROJEÇÕES --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Projeções</p>
 
-    <a href="/omie/vs/financeiro-consolidado"
-       class="sidebar-sub {{ request()->is('omie/vs/financeiro-consolidado*') ? 'active' : '' }}">
-        VS
-    </a>
+                    <a href="/omie/sv/financeiro-consolidado"
+                       class="sidebar-sub {{ request()->is('omie/sv/financeiro-consolidado*') ? 'active' : '' }}">SV</a>
 
-    <a href="/omie/gv/financeiro-consolidado"
-       class="sidebar-sub {{ request()->is('omie/gv/financeiro-consolidado*') ? 'active' : '' }}">
-        GV
-    </a>
-</div>
+                    <a href="/omie/vs/financeiro-consolidado"
+                       class="sidebar-sub {{ request()->is('omie/vs/financeiro-consolidado*') ? 'active' : '' }}">VS</a>
+
+                    <a href="/omie/gv/financeiro-consolidado"
+                       class="sidebar-sub {{ request()->is('omie/gv/financeiro-consolidado*') ? 'active' : '' }}">GV</a>
+
+                    <a href="/omie/cs/financeiro-consolidado"
+                       class="sidebar-sub {{ request()->is('omie/cs/financeiro-consolidado*') ? 'active' : '' }}">CS</a>
+                </div>
 
                 {{-- MOVIMENTOS FINANCEIROS --}}
                 <div class="space-y-1 mt-4">
                     <p class="text-xs text-[var(--muted)] mb-1">Movimentos Financeiros</p>
 
-                    <a href="/omie/sv/movimentos-financeiros"
-                       class="sidebar-sub {{ request()->is('omie/sv/movimentos-financeiros*') ? 'active' : '' }}">SV</a>
-
-                    <a href="/omie/vs/movimentos-financeiros"
-                       class="sidebar-sub {{ request()->is('omie/vs/movimentos-financeiros*') ? 'active' : '' }}">VS</a>
-
-                    <a href="/omie/gv/movimentos-financeiros"
-                       class="sidebar-sub {{ request()->is('omie/gv/movimentos-financeiros*') ? 'active' : '' }}">GV</a>
+                    <a href="/omie/sv/movimentos-financeiros" class="sidebar-sub {{ request()->is('omie/sv/movimentos-financeiros*') ? 'active' : '' }}">SV</a>
+                    <a href="/omie/vs/movimentos-financeiros" class="sidebar-sub {{ request()->is('omie/vs/movimentos-financeiros*') ? 'active' : '' }}">VS</a>
+                    <a href="/omie/gv/movimentos-financeiros" class="sidebar-sub {{ request()->is('omie/gv/movimentos-financeiros*') ? 'active' : '' }}">GV</a>
+                    <a href="/omie/cs/movimentos-financeiros" class="sidebar-sub {{ request()->is('omie/cs/movimentos-financeiros*') ? 'active' : '' }}">CS</a>
                 </div>
 
-               {{-- CONTAS A PAGAR --}}
-<div class="space-y-1 mt-4">
-    <p class="text-xs text-[var(--muted)] mb-1">Contas a Pagar</p>
+                {{-- CONTAS A PAGAR --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Contas a Pagar</p>
 
-    {{-- SV --}}
-    <a href="{{ route('omie.pagar.index', ['empresa' => 'sv']) }}"
-       class="sidebar-sub {{ request()->is('omie/sv/pagar*') ? 'active' : '' }}">
-        SV · Listar
-    </a>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="{{ route('omie.pagar.index', ['empresa' => $emp]) }}"
+                           class="sidebar-sub {{ request()->is("omie/$emp/pagar*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }} · Listar
+                        </a>
 
-    <a href="{{ route('omie.pagar.create', ['empresa' => 'sv']) }}"
-       class="sidebar-sub text-orange-600 hover:text-orange-700">
-        ➕ Novo Custo
-    </a>
-
-    {{-- VS --}}
-    <a href="{{ route('omie.pagar.index', ['empresa' => 'vs']) }}"
-       class="sidebar-sub {{ request()->is('omie/vs/pagar*') ? 'active' : '' }}">
-        VS · Listar
-    </a>
-
-    <a href="{{ route('omie.pagar.create', ['empresa' => 'vs']) }}"
-       class="sidebar-sub text-orange-600 hover:text-orange-700">
-        ➕ Novo Custo
-    </a>
-
-    {{-- GV --}}
-    <a href="{{ route('omie.pagar.index', ['empresa' => 'gv']) }}"
-       class="sidebar-sub {{ request()->is('omie/gv/pagar*') ? 'active' : '' }}">
-        GV · Listar
-    </a>
-
-    <a href="{{ route('omie.pagar.create', ['empresa' => 'gv']) }}"
-       class="sidebar-sub text-orange-600 hover:text-orange-700">
-        ➕ Novo Custo
-    </a>
-</div>
-
+                        <a href="{{ route('omie.pagar.create', ['empresa' => $emp]) }}"
+                           class="sidebar-sub text-orange-600 hover:text-orange-700">
+                            ➕ Novo Custo
+                        </a>
+                    @endforeach
+                </div>
 
                 {{-- CONTAS A RECEBER --}}
-<div class="space-y-1 mt-4">
-    <p class="text-xs text-[var(--muted)] mb-1">Contas a Receber</p>
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Contas a Receber</p>
 
-    {{-- SV --}}
-    <a href="{{ route('omie.receber.index', ['empresa' => 'sv']) }}"
-       class="sidebar-sub {{ request()->is('omie/sv/receber*') ? 'active' : '' }}">
-        SV · Listar
-    </a>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="{{ route('omie.receber.index', ['empresa' => $emp]) }}"
+                           class="sidebar-sub {{ request()->is("omie/$emp/receber*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }} · Listar
+                        </a>
 
-    <a href="{{ route('omie.receber.create', ['empresa' => 'sv']) }}"
-       class="sidebar-sub text-emerald-600 hover:text-emerald-700">
-        ➕ Novo Recebimento
-    </a>
-
-    {{-- VS --}}
-    <a href="{{ route('omie.receber.index', ['empresa' => 'vs']) }}"
-       class="sidebar-sub {{ request()->is('omie/vs/receber*') ? 'active' : '' }}">
-        VS · Listar
-    </a>
-
-    <a href="{{ route('omie.receber.create', ['empresa' => 'vs']) }}"
-       class="sidebar-sub text-emerald-600 hover:text-emerald-700">
-        ➕ Novo Recebimento
-    </a>
-
-    {{-- GV --}}
-    <a href="{{ route('omie.receber.index', ['empresa' => 'gv']) }}"
-       class="sidebar-sub {{ request()->is('omie/gv/receber*') ? 'active' : '' }}">
-        GV · Listar
-    </a>
-
-    <a href="{{ route('omie.receber.create', ['empresa' => 'gv']) }}"
-       class="sidebar-sub text-emerald-600 hover:text-emerald-700">
-        ➕ Novo Recebimento
-    </a>
-</div>
-
+                        <a href="{{ route('omie.receber.create', ['empresa' => $emp]) }}"
+                           class="sidebar-sub text-emerald-600 hover:text-emerald-700">
+                            ➕ Novo Recebimento
+                        </a>
+                    @endforeach
+                </div>
 
                 {{-- CONTAS CORRENTES --}}
                 <div class="space-y-1 mt-4">
                     <p class="text-xs text-[var(--muted)] mb-1">Contas Correntes</p>
-
-                    <a href="/omie/sv/contas-correntes"
-                       class="sidebar-sub {{ request()->is('omie/sv/contas-correntes*') ? 'active' : '' }}">SV</a>
-
-                    <a href="/omie/vs/contas-correntes"
-                       class="sidebar-sub {{ request()->is('omie/vs/contas-correntes*') ? 'active' : '' }}">VS</a>
-
-                    <a href="/omie/gv/contas-correntes"
-                       class="sidebar-sub {{ request()->is('omie/gv/contas-correntes*') ? 'active' : '' }}">GV</a>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="/omie/{{ $emp }}/contas-correntes"
+                           class="sidebar-sub {{ request()->is("omie/$emp/contas-correntes*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }}
+                        </a>
+                    @endforeach
                 </div>
+                {{-- NOTAS FISCAIS --}}
+                <div class="space-y-1 mt-4">
+                    <p class="text-xs text-[var(--muted)] mb-1">Notas Fiscais</p>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="/omie/{{ $emp }}/notas-fiscais"
+                           class="sidebar-sub {{ request()->is("omie/$emp/notas-fiscais*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }}
+                        </a>
+                    @endforeach
 
                 {{-- CLIENTES --}}
                 <div class="space-y-1 mt-4">
                     <p class="text-xs text-[var(--muted)] mb-1">Clientes</p>
-
-                    <a href="/omie/sv/clientes"
-                       class="sidebar-sub {{ request()->is('omie/sv/clientes*') ? 'active' : '' }}">SV</a>
-
-                    <a href="/omie/vs/clientes"
-                       class="sidebar-sub {{ request()->is('omie/vs/clientes*') ? 'active' : '' }}">VS</a>
-
-                    <a href="/omie/gv/clientes"
-                       class="sidebar-sub {{ request()->is('omie/gv/clientes*') ? 'active' : '' }}">GV</a>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="/omie/{{ $emp }}/clientes"
+                           class="sidebar-sub {{ request()->is("omie/$emp/clientes*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }}
+                        </a>
+                    @endforeach
                 </div>
 
                 {{-- CONTRATOS --}}
                 <div class="space-y-1 mt-4">
                     <p class="text-xs text-[var(--muted)] mb-1">Contratos</p>
-
-                    <a href="/omie/sv/contratos"
-                       class="sidebar-sub {{ request()->is('omie/sv/contratos*') ? 'active' : '' }}">SV</a>
-
-                    <a href="/omie/vs/contratos"
-                       class="sidebar-sub {{ request()->is('omie/vs/contratos*') ? 'active' : '' }}">VS</a>
-
-                    <a href="/omie/gv/contratos"
-                       class="sidebar-sub {{ request()->is('omie/gv/contratos*') ? 'active' : '' }}">GV</a>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="/omie/{{ $emp }}/contratos"
+                           class="sidebar-sub {{ request()->is("omie/$emp/contratos*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }}
+                        </a>
+                    @endforeach
                 </div>
 
                 {{-- SERVIÇOS --}}
                 <div class="space-y-1 mt-4">
                     <p class="text-xs text-[var(--muted)] mb-1">Serviços</p>
-
-                    <a href="/omie/sv/servicos"
-                       class="sidebar-sub {{ request()->is('omie/sv/servicos*') ? 'active' : '' }}">SV</a>
-
-                    <a href="/omie/vs/servicos"
-                       class="sidebar-sub {{ request()->is('omie/vs/servicos*') ? 'active' : '' }}">VS</a>
-
-                    <a href="/omie/gv/servicos"
-                       class="sidebar-sub {{ request()->is('omie/gv/servicos*') ? 'active' : '' }}">GV</a>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="/omie/{{ $emp }}/servicos"
+                           class="sidebar-sub {{ request()->is("omie/$emp/servicos*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }}
+                        </a>
+                    @endforeach
                 </div>
 
                 {{-- CATEGORIAS --}}
                 <div class="space-y-1 mt-4">
                     <p class="text-xs text-[var(--muted)] mb-1">Categorias</p>
-
-                    <a href="/omie/categorias/sv"
-                       class="sidebar-sub {{ request()->is('omie/categorias/sv*') ? 'active' : '' }}">SV</a>
-
-                    <a href="/omie/categorias/vs"
-                       class="sidebar-sub {{ request()->is('omie/categorias/vs*') ? 'active' : '' }}">VS</a>
-
-                    <a href="/omie/categorias/gv"
-                       class="sidebar-sub {{ request()->is('omie/categorias/gv*') ? 'active' : '' }}">GV</a>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="/omie/categorias/{{ $emp }}"
+                           class="sidebar-sub {{ request()->is("omie/categorias/$emp*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }}
+                        </a>
+                    @endforeach
                 </div>
+
                 {{-- EMPRESAS --}}
                 <div class="space-y-1 mt-4">
                     <p class="text-xs text-[var(--muted)] mb-1">Empresas</p>
-                    <a href="/omie/sv/empresas"
-                       class="sidebar-sub {{ request()->is('omie/sv/empresas*') ? 'active' : '' }}">SV</a>
-                    <a href="/omie/vs/empresas"
-                       class="sidebar-sub {{ request()->is('omie/vs/empresas*') ? 'active' : '' }}">VS</a>
-                    <a href="/omie/gv/empresas"
-                       class="sidebar-sub {{ request()->is('omie/gv/empresas*') ? 'active' : '' }}">GV</a>
+                    @foreach (['sv','vs','gv','cs'] as $emp)
+                        <a href="/omie/{{ $emp }}/empresas"
+                           class="sidebar-sub {{ request()->is("omie/$emp/empresas*") ? 'active' : '' }}">
+                            {{ strtoupper($emp) }}
+                        </a>
+                    @endforeach
                 </div>
+
             </div>
         </nav>
 
@@ -451,6 +399,7 @@ body {
 
     </div>
 </aside>
+
 
 
 

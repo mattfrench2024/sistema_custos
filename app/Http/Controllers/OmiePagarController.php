@@ -14,45 +14,44 @@ public function index(Request $request)
     $empresaSlug   = $request->get('empresa_slug');
     $tipoDocumento = $request->get('tipo_documento');
 
-    // Query base com relacionamentos
     $query = OmiePagarView::with([
-    'tipoDocumento',
-    'fornecedor',
-    'categoria',
-    'contaCorrente',
-])
-->where('empresa', $empresaCodigo)
-->whereNotNull('data_vencimento')
-->whereBetween('data_vencimento', [
-    now()->subYears(5),
-    now()->addYears(1),
-]);
+            'tipoDocumento',
+            'fornecedor',
+            'categoria',
+            'contaCorrente',
+        ])
+        ->where('empresa', $empresaCodigo)
+        ->whereNotNull('data_vencimento')
+        ->whereBetween('data_vencimento', [
+            now()->subYears(5),
+            now()->addYears(1),
+        ]);
 
-
-    // Filtro opcional por tipo de documento
+    // Filtro por tipo de documento
     if ($tipoDocumento) {
         $query->where('codigo_tipo_documento', $tipoDocumento);
     }
-// Filtro por mês e ano
-$mes = $request->get('mes');
-$ano = $request->get('ano');
 
-if($mes && $ano){
-    $query->whereYear('data_vencimento', $ano)
-          ->whereMonth('data_vencimento', $mes);
-} elseif ($ano) {
-    $query->whereYear('data_vencimento', $ano);
-} elseif ($mes) {
-    $query->whereMonth('data_vencimento', $mes);
-}
+    // Filtro por mês e ano
+    $mes = $request->get('mes');
+    $ano = $request->get('ano');
 
-    // Ordenação segura por data
+    if ($mes && $ano) {
+        $query->whereYear('data_vencimento', $ano)
+              ->whereMonth('data_vencimento', $mes);
+    } elseif ($ano) {
+        $query->whereYear('data_vencimento', $ano);
+    } elseif ($mes) {
+        $query->whereMonth('data_vencimento', $mes);
+    }
+
+    // 🔥 Ordenação inteligente: vencimentos mais próximos de hoje primeiro
     $contas = $query
-        ->orderBy('data_vencimento', 'desc')
+        ->orderByRaw('ABS(DATEDIFF(data_vencimento, CURDATE()))')
         ->paginate(25)
         ->withQueryString();
 
-    // Lista de tipos de documento usados na empresa
+    // Tipos de documento usados pela empresa
     $tiposDocumento = OmieTipoDocumento::whereIn(
             'codigo',
             OmiePagar::where('empresa', $empresaCodigo)
@@ -75,26 +74,27 @@ if($mes && $ano){
 
 
 
-    public function show(Request $request, string $empresa, OmiePagar $pagar)
+
+    public function show(Request $request, string $empresa, int $pagar)
 {
     $empresaCodigo = $request->get('empresa_codigo');
 
-    if ($pagar->empresa !== $empresaCodigo) {
-        abort(403, 'Acesso não autorizado a esta conta');
-    }
+    $conta = OmiePagar::where('id', $pagar)
+        ->where('empresa', $empresaCodigo)
+        ->firstOrFail();
 
     return view('omie.pagar.show', [
-        'conta'         => $pagar,
+        'conta'         => $conta,
         'empresaCodigo' => $empresaCodigo,
         'empresaSlug'   => $empresa,
     ]);
 }
+
 public function create(Request $request)
 {
-    $empresaCodigo = $request->get('empresa_codigo'); // obrigatório para filtrar
+    $empresaCodigo = $request->get('empresa_codigo'); 
     $empresaSlug   = $request->get('empresa_slug');
 
-    // Buscar dados relacionados apenas da empresa atual
     $fornecedores = \App\Models\OmieCliente::where('empresa', $empresaCodigo)
                         ->orderBy('razao_social')
                         ->get();

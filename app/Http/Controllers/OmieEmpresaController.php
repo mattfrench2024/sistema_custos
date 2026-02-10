@@ -10,12 +10,14 @@ class OmieEmpresaController extends Controller
         'vs' => 'Verreschi Soluções',
         'gv' => 'Grupo Verreschi',
         'sv' => 'Sociedade Advogados Verreschi',
+        'cs' => 'Consultoria Soluções',
     ];
 
     protected array $empresas = [
         'vs' => '30',
         'gv' => '36',
         'sv' => '04',
+        'cs' => '10',
     ];
 
     // ==============================

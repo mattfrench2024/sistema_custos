@@ -11,16 +11,18 @@ use Carbon\Carbon;
 
 class OmieImportContaCorrenteLancamentos extends Command
 {
-    protected $signature = 'omie:import-conta-corrente-lancamentos {empresa : sv|vs|gv}';
+    protected $signature = 'omie:import-conta-corrente-lancamentos {empresa : sv|vs|gv |cs}';
     protected $description = 'Importa lançamentos de conta corrente da Omie (ListarLancCC)';
 
     public function handle()
     {
         $map = [
-            'sv' => ['codigo' => '04'],
-            'vs' => ['codigo' => '30'],
-            'gv' => ['codigo' => '36'],
-        ];
+    'sv' => ['codigo' => '04'],
+    'vs' => ['codigo' => '30'],
+    'gv' => ['codigo' => '36'],
+    'cs' => ['codigo' => '10'], // Sistemas Custos
+];
+
 
         $empresaArg = $this->argument('empresa');
 
