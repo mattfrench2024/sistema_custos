@@ -77,11 +77,19 @@ class OmieReceber extends Model
 }
 
     public function getTotalRecebidoAttribute(): float
-    {
-        return $this->movimentosFinanceiros()
-            ->where('tipo_movimento', 'C')
-            ->sum('valor') ?? 0;
+{
+    $query = OmieMovimentoFinanceiro::where('empresa', $this->empresa)
+                                    ->where('tipo_movimento', 'R'); // ou 'C' – confirme qual código você usa para recebimento
+
+    if ($this->codigo_lancamento_integracao) {
+        $query->where('codigo_lancamento_omie', $this->codigo_lancamento_integracao);
+    } else {
+        // Títulos manuais usam o próprio id como código de lançamento
+        $query->where('codigo_lancamento_omie', $this->id);
     }
+
+    return $query->sum('valor') ?? 0;
+}
 
     public function getSaldoAbertoAttribute(): float
     {
@@ -147,13 +155,21 @@ class OmieReceber extends Model
     }
 
     protected static function booted()
-    {
-        static::saving(function ($model) {
-            if (empty($model->codigo_lancamento_integracao)) {
-                throw new \RuntimeException('codigo_lancamento_integracao não pode ser vazio');
-            }
-        });
-    }
+{
+    static::saving(function ($model) {
+        // Permite vazio para títulos manuais em qualquer fase:
+        // - pendente (criação)
+        // - recebido / parcial / cancelado (fechados manualmente, sem integração Omie)
+        $statusPermitidosSemCodigo = ['pendente', 'recebido', 'parcial', 'cancelado'];
+
+        if (
+            empty($model->codigo_lancamento_integracao) &&
+            !in_array($model->status, $statusPermitidosSemCodigo)
+        ) {
+            throw new \RuntimeException('codigo_lancamento_integracao não pode ser vazio');
+        }
+    });
+}
 
     // Route Model Binding
     public function getRouteKeyName(): string

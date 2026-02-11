@@ -168,44 +168,40 @@ public function store(Request $request, $empresa)
     abort_unless(isset($this->empresas[$empresa]), 404);
 
     $request->validate([
-    'codigo_titulo'           => 'required',
-    'codigo_conta_corrente'   => 'required',
-    'valor'                   => 'required|numeric',
-    'data_movimento'          => 'required|date',
-    'origem'                  => 'required|in:pagar,receber',
-]);
-
+        'codigo_titulo'         => 'required|numeric', // agora sempre tem valor
+        'codigo_conta_corrente' => 'required',
+        'valor'                 => 'required|numeric',
+        'data_movimento'        => 'required|date',
+        'origem'                => 'required|in:pagar,receber',
+        'observacao'            => 'nullable|string',
+    ]);
 
     $empresaId = $this->empresas[$empresa];
     $isPagar   = $request->origem === 'pagar';
 
-    // 🔎 Busca título correto
-    $titulo = $isPagar
-        ? OmiePagar::where('empresa', $empresaId)
-            ->where('codigo_lancamento_omie', $request->codigo_lancamento_omie)
-            ->first()
-        : OmieReceber::where('empresa', $empresaId)
-            ->where('codigo_lancamento_integracao', $request->codigo_lancamento_omie)
-            ->first();
+    // Busca o título usando o código enviado (pode ser o código Omie OU o id local)
+    $tituloQuery = $isPagar ? OmiePagar::where('empresa', $empresaId)
+                                    : OmieReceber::where('empresa', $empresaId);
 
-    if (! $titulo) {
-        return back()->withErrors([
-            'titulo' => 'Título financeiro não encontrado.'
-        ]);
-    }
+    $titulo = $tituloQuery->where(function ($q) use ($request, $isPagar) {
+        if ($isPagar) {
+            $q->where('codigo_lancamento_omie', $request->codigo_titulo)
+              ->orWhere('id', $request->codigo_titulo);
+        } else {
+            $q->where('codigo_lancamento_integracao', $request->codigo_titulo)
+              ->orWhere('id', $request->codigo_titulo);
+        }
+    })->firstOrFail();
 
-    // 🎯 Código REAL do título
-    $codigoTitulo = $isPagar
-        ? $titulo->codigo_lancamento_omie
-        : $titulo->codigo_lancamento_integracao;
+    // Usa o mesmo valor enviado como código de lançamento no movimento
+    $codigoLancamentoOmie = $request->codigo_titulo;
 
-    // 📦 Payload correto
     $info = [
-        'manual' => true,
-        'usuario' => auth()->id(),
+        'manual'   => true,
+        'usuario'  => auth()->id(),
         'detalhes' => [
             'cGrupo'      => $isPagar ? 'CONTA_A_PAGAR' : 'CONTA_A_RECEBER',
-            'nCodTitulo'  => $codigoTitulo,
+            'nCodTitulo'  => $codigoLancamentoOmie,
             'nCodCC'      => $request->codigo_conta_corrente,
             'dDtMov'      => Carbon::parse($request->data_movimento)->format('d/m/Y'),
             'nValorMov'   => abs($request->valor),
@@ -213,20 +209,32 @@ public function store(Request $request, $empresa)
         ],
     ];
 
-    // 💾 Salva movimento
-    OmieMovimentoFinanceiro::create([
-        'empresa'               => $empresaId,
-        'codigo_movimento'      => (string) \Str::uuid(),
-        'codigo_lancamento_omie'=> $codigoTitulo,
-        'codigo_titulo'         => $codigoTitulo,
-        'tipo_movimento'        => $isPagar ? 'P' : 'R',
-        'origem'                => strtoupper($request->origem),
-        'data_movimento'        => $request->data_movimento,
-        'data_competencia'      => $titulo->data_vencimento,
-        'valor'                 => abs($request->valor),
-        'codigo_conta_corrente' => $request->codigo_conta_corrente,
-        'info'                  => $info,
-    ]);
+    // Gere os UUIDs antes
+$codigoMovimento = (string) \Str::uuid();
+$omieUid         = 'manual-' . $codigoMovimento; // ou apenas outro UUID se preferir
+
+OmieMovimentoFinanceiro::create([
+    'empresa'                => $empresaId,
+    'omie_uid'               => $omieUid,                    // ← ADICIONADO
+    'codigo_movimento'       => $codigoMovimento,            // ← use a variável
+    'codigo_lancamento_omie' => $codigoLancamentoOmie,
+    'codigo_titulo'          => $titulo->id,
+    'tipo_movimento'         => $isPagar ? 'P' : 'R',
+    'origem'                 => strtoupper($request->origem),
+    'data_movimento'         => $request->data_movimento,
+    'data_competencia'       => $titulo->data_vencimento,
+    'valor'                  => abs($request->valor),
+    'codigo_conta_corrente'  => $request->codigo_conta_corrente,
+    'info'                   => $info,
+    'observacao'             => $request->observacao ?? null,
+]);
+    // Atualiza status do título automaticamente
+    $titulo->refresh();
+    if ($titulo->saldo_aberto <= 0) {
+        $titulo->update(['status' => 'recebido']);
+    } elseif ($titulo->total_recebido > 0) {
+        $titulo->update(['status' => 'parcial']);
+    }
 
     return redirect()
         ->route('omie.movimentos.index', $empresa)

@@ -240,4 +240,12 @@ public function getNomeEnvolvidoAttribute(): string
 
     return 'Não identificado';
 }
+protected static function booted()
+{
+    static::creating(function ($model) {
+        if (empty($model->omie_uid)) {
+            $model->omie_uid = 'manual-' . (string) \Str::uuid();
+        }
+    });
+}
 }

@@ -85,10 +85,12 @@
 
             {{-- HIDDEN --}}
             <input type="hidden" name="origem" value="{{ $origem }}">
-        <input type="hidden" name="codigo_titulo"
-                   value="{{ $origem === 'pagar'
-                        ? $titulo->codigo_lancamento_omie
-                        : $titulo->codigo_lancamento_integracao }}">
+
+{{-- Sempre envia um identificador numérico válido --}}
+<input type="hidden" name="codigo_titulo"
+       value="{{ $origem === 'pagar'
+            ? ($titulo->codigo_lancamento_omie ?? $titulo->id)
+            : ($titulo->codigo_lancamento_integracao ?? $titulo->id) }}">
 
             {{-- TÍTULO --}}
             <h3 class="text-sm font-semibold mb-4">Título Vinculado</h3>

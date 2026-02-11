@@ -149,7 +149,7 @@ $totalReceber = DB::table('omie_receber')
     ->orderByDesc('data_movimento')
     ->orderByDesc('data_inclusao')
     ->orderByDesc('id')
-    ->paginate(30)
+    ->paginate(10)
     ->withQueryString();
 
 

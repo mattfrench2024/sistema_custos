@@ -142,19 +142,83 @@ class FinanceiroAnaliticoController extends Controller
         ->get()
         ->toArray();
 
-    /*
-    |--------------------------------------------------------------------------
-    | 🟠 CONCENTRAÇÃO DE RECEITA
-    |--------------------------------------------------------------------------
-    */
-    $totalReceita = array_sum(array_column($topClientes, 'total'));
 
-    $concentracaoClientes = collect($topClientes)->map(fn ($c) => [
-        'cliente'     => $c['cliente'],
-        'percentual'  => $totalReceita > 0
-            ? round(($c['total'] / $totalReceita) * 100, 2)
-            : 0,
-    ])->values();
+   
+    // 1. Iniciamos uma nova query para qualificar as colunas explicitamente
+    $concentracaoClientes = OmieMovimentoFinanceiro::query()
+        ->where('omie_movimentos_financeiros.empresa', $empresaCodigo) // <--- Correção da ambiguidade
+        ->whereYear('omie_movimentos_financeiros.data_movimento', $ano);
+
+    if ($mes) {
+        $concentracaoClientes->whereMonth('omie_movimentos_financeiros.data_movimento', $mes);
+    }
+
+    $concentracaoClientes = OmieMovimentoFinanceiro::query()
+    ->from('omie_movimentos_financeiros as mf')
+
+    // 🔹 filtro por empresa (map: 04, 30, 36, 10)
+    ->where('mf.empresa', $empresaCodigo)
+
+    // 🔹 filtro por ano
+    ->whereYear('mf.data_movimento', $ano);
+
+if ($mes) {
+    $concentracaoClientes->whereMonth('mf.data_movimento', $mes);
+}
+
+$concentracaoClientes = $concentracaoClientes
+
+    // 🔹 somente CONTA_A_RECEBER
+    ->whereRaw("
+        JSON_CONTAINS(
+            mf.info->'$.detalhes.cGrupo',
+            '\"CONTA_A_RECEBER\"'
+        )
+    ")
+
+    // 🔹 somente valores positivos
+    ->where('mf.valor', '>', 0)
+
+    // 🔹 join com clientes (igual ao SQL)
+    ->join('omie_clientes as c', function ($join) {
+        $join->on(
+            'c.codigo_cliente_omie',
+            '=',
+            \DB::raw("
+                CAST(
+                    JSON_UNQUOTE(
+                        JSON_EXTRACT(mf.info, '$.detalhes.nCodCliente')
+                    ) AS UNSIGNED
+                )
+            ")
+        )
+->whereRaw("
+    c.empresa COLLATE utf8mb4_unicode_ci =
+    mf.empresa COLLATE utf8mb4_unicode_ci
+");
+    })
+
+    // 🔹 select final
+    ->selectRaw("
+        c.razao_social as cliente,
+        SUM(mf.valor) as total
+    ")
+
+    // 🔹 agrupamento correto
+    ->groupBy('c.codigo_cliente_omie', 'c.razao_social')
+
+    ->orderByDesc('total')
+    ->limit(5)
+
+    ->get()
+    ->map(fn ($c) => [
+        'cliente' => mb_strimwidth($c->cliente, 0, 35, '…'),
+        'total'   => (float) $c->total,
+    ])
+    ->values();
+
+
+
 
     return view('financeiro.analitico.empresa', compact(
         'empresaCodigo',
