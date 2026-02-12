@@ -314,16 +314,32 @@ Route::get(
         Route::get('/contratos/{contrato}', [OmieContratoController::class, 'show'])
             ->name('contratos.show');
 
-        /**
-         * ============================
-         * CLIENTES
-         * ============================
-         */
-        Route::get('/clientes', [OmieClienteController::class, 'index'])
-            ->name('clientes.index');
+       /**
+ * ============================
+ * CLIENTES
+ * ============================
+ */
 
-        Route::get('/clientes/{cliente}', [OmieClienteController::class, 'show'])
-            ->name('clientes.show');
+// CREATE precisa vir antes do {cliente}
+Route::get('/clientes/create', [OmieClienteController::class, 'create'])
+    ->name('clientes.create');
+
+Route::post('/clientes', [OmieClienteController::class, 'store'])
+    ->name('clientes.store');
+
+// EDIT antes do show
+Route::get('/clientes/{cliente}/edit', [OmieClienteController::class, 'edit'])
+    ->name('clientes.edit');
+
+// SHOW por último
+Route::get('/clientes/{cliente}', [OmieClienteController::class, 'show'])
+    ->name('clientes.show');
+
+Route::put('/clientes/{cliente}', [OmieClienteController::class, 'update'])
+    ->name('clientes.update');
+
+Route::get('/clientes', [OmieClienteController::class, 'index'])
+    ->name('clientes.index');
 
         /**
          * ============================

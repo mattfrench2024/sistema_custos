@@ -112,7 +112,21 @@
             </span>
         </div>
     </div>
+<div class="flex justify-between items-start mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Detalhes do Cliente</h1>
+        <p class="text-lg text-gray-600 mt-1">{{ $cliente->razao_social }}</p>
+    </div>
 
+    <div class="flex gap-3">
+        <a href="{{ route('omie.clientes.index', $empresa) }}" class="btn-secondary">
+            Voltar para lista
+        </a>
+        <a href="{{ route('omie.clientes.edit', ['empresa' => $empresa, 'cliente' => $cliente]) }}" class="btn-primary">
+            Editar Cliente
+        </a>
+    </div>
+</div>
     {{-- DADOS CADASTRAIS --}}
     <div class="card p-6 space-y-4">
         <div class="section-title">Dados Cadastrais</div>

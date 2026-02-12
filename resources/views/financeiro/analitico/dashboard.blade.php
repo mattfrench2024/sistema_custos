@@ -454,16 +454,29 @@
                 </div>
 
                 {{-- CLIENTES --}}
-                <div class="space-y-1 mt-4">
-                    <p class="text-xs text-[var(--text-muted)] mb-1">Clientes</p>
-                    @foreach (['sv','vs','gv','cs'] as $emp)
-                        <a href="/omie/{{ $emp }}/clientes"
-                           class="sidebar-sub {{ request()->is("omie/$emp/clientes*") ? 'active' : '' }}">
-                            {{ strtoupper($emp) }}
-                        </a>
-                    @endforeach
-                </div>
+<div class="space-y-2 mt-4">
+    <p class="text-xs text-[var(--text-muted)] mb-1">Clientes</p>
 
+    @foreach (['sv','vs','gv','cs'] as $emp)
+        <div class="space-y-1">
+
+            {{-- LISTAR --}}
+            <a href="{{ route('omie.clientes.index', $emp) }}"
+               class="sidebar-sub {{ request()->is("omie/$emp/clientes") ? 'active' : '' }}">
+                {{ strtoupper($emp) }} - Lista
+            </a>
+
+            {{-- CRIAR --}}
+            <a href="{{ route('omie.clientes.create', $emp) }}"
+               class="sidebar-sub pl-6 text-sm {{ request()->is("omie/$emp/clientes/create") ? 'active' : '' }}">
+                + Novo Cliente
+            </a>
+
+        </div>
+    @endforeach
+</div>
+
+               
                 {{-- CONTRATOS --}}
                 <div class="space-y-1 mt-4">
                     <p class="text-xs text-[var(--text-muted)] mb-1">Contratos</p>
